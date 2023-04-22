@@ -1,0 +1,43 @@
+CREATE OR REPLACE PROCEDURE add_course_credit(course_no IN number)
+IS
+    credits_val NUMBER(1) := 0;
+BEGIN
+    IF course_no BETWEEN 100 AND 499 THEN
+        credits_val := 4;
+    ELSIF course_no BETWEEN 500 AND 799 THEN
+        credits_val := 3;
+    END IF;
+    INSERT INTO COURSE_CREDIT VALUES (course_no, credits_val);
+END;^
+
+CREATE OR REPLACE TRIGGER add_course_credit_trigger
+    AFTER INSERT
+    ON COURSES
+    FOR EACH ROW
+DECLARE
+    credit_exists NUMBER := 0;
+BEGIN
+    SELECT COUNT(*)
+    INTO credit_exists
+    FROM course_credit
+    WHERE COURSE_CREDIT.COURSE# = :NEW.COURSE#;
+
+    IF (credit_exists = 0) THEN
+        add_course_credit(:NEW.COURSE#);
+    END IF;
+END;^
+
+CREATE OR REPLACE VIEW DISPLAY_REGISTRATION_INFO AS
+(
+SELECT
+    B#, FIRST_NAME, LAST_NAME, ST_LEVEL, GPA, EMAIL, BDATE,
+    C2.CLASSID, SECT#, SEMESTER, YEAR, LIMIT, CLASS_SIZE, ROOM,
+    C3.DEPT_CODE, C3.COURSE#, TITLE, CREDITS,
+    GE.SCORE, LGRADE
+FROM STUDENTS
+     LEFT JOIN G_ENROLLMENTS GE on STUDENTS.B# = GE.G_B#
+     LEFT JOIN SCORE_GRADE SG on SG.SCORE = GE.SCORE
+     LEFT JOIN CLASSES C2 on C2.CLASSID = GE.CLASSID
+     LEFT JOIN COURSES C3 on C2.DEPT_CODE = C3.DEPT_CODE and C2.COURSE# = C3.COURSE#
+     LEFT JOIN COURSE_CREDIT CC on C2.COURSE# = CC.COURSE#
+)^

@@ -1,0 +1,4 @@
+ rootProject.name = 'srs'
+
+ include('srs-api')
+ include('srs-ui')
