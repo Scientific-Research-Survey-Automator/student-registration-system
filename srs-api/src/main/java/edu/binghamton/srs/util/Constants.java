@@ -2,6 +2,10 @@ package edu.binghamton.srs.util;
 
 public class Constants {
 
+    private Constants() {
+        throw new IllegalStateException("Utility class");
+    }
+
 //    Students
     public static final String DB_COL_B_NUMBER = "B#";
     public static final String DB_COL_FIRST_NAME = "first_name";

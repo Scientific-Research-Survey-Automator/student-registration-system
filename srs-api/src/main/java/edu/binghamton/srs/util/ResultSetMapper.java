@@ -11,6 +11,10 @@ import java.sql.SQLException;
 
 public class ResultSetMapper {
 
+    private ResultSetMapper() {
+        throw new IllegalStateException("Utility class");
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ResultSetMapper.class);
 
     public static Student toStudent(ResultSet resultSet, int rowNum) throws SQLException {
