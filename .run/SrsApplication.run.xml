@@ -1,0 +1,10 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="SrsApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+    <module name="srs.srs-api.main" />
+    <option name="PROGRAM_PARAMETERS" value="--spring.config.import=optional:jdbc.properties" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="edu.binghamton.srs.SrsApplication" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
