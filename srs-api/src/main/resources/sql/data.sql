@@ -71,4 +71,4 @@ insert into g_enrollments values ('B00000005', 'c0001', 76)^
 
 --cur sem insert data
 
-INSERT INTO cur_sem VALUES (2021, 'Spring')
+INSERT INTO cur_sem VALUES (2021, 'Spring')^
