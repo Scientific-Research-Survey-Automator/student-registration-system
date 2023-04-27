@@ -49,6 +49,17 @@ table_name varchar2(13) not null,
 operation varchar2(6) not null,
 tuple_keyvalue varchar2(20))^
 
+--Create and add a table to store current sem
+
+DROP TABLE cur_sem^
+
+CREATE TABLE cur_sem (
+    YEAR NUMBER(4) NOT NULL,
+    semester varchar2(8) NOT NULL
+    CHECK (semester IN ('Spring', 'Fall', 'Summer 1', 'Summer 2', 'Winter')),
+    PRIMARY KEY (YEAR,semester)
+                     )^
+
 CREATE OR REPLACE VIEW DISPLAY_REGISTRATION_INFO AS
 (
 SELECT
@@ -63,3 +74,14 @@ FROM STUDENTS
      LEFT JOIN COURSES C3 on C2.DEPT_CODE = C3.DEPT_CODE and C2.COURSE# = C3.COURSE#
      LEFT JOIN COURSE_CREDIT CC on C2.COURSE# = CC.COURSE#
 )^
+
+--Add sequences
+
+/*
+1.  (2 points) Use a sequence to generate the values for log# automatically when new log records are
+    inserted into the logs table. Start the sequence with 1000 with an increment of 1
+*/
+
+DROP SEQUENCE logseq^
+CREATE SEQUENCE logseq START WITH 1000 INCREMENT BY 1^
+ALTER TABLE logs MODIFY log# DEFAULT logseq.nextval^
