@@ -4,20 +4,20 @@ import edu.binghamton.srs.http.StudentUpdateRequest;
 import edu.binghamton.srs.model.Student;
 import edu.binghamton.srs.util.Constants;
 import edu.binghamton.srs.util.ResultSetMapper;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
+import static edu.binghamton.srs.util.Constants.DB_COL_B_NUMBER;
+import static edu.binghamton.srs.util.SqlUtils.*;
 
 @Repository
-@RequiredArgsConstructor
 public class StudentDao {
     private static final Map<String, String> DB_COLUMN_MAPPINGS = new HashMap<>();
     static {
@@ -29,20 +29,23 @@ public class StudentDao {
         DB_COLUMN_MAPPINGS.put(Constants.DB_COL_EMAIL, "email");
         DB_COLUMN_MAPPINGS.put(Constants.DB_COL_BDATE, "bdate");
     }
-    
-    // TODO: 4/20/23 Using stored proc 2 fetch all students
-    private static final String FETCH_STUDENTS = "SELECT * FROM students";
-    private static final String FETCH_STUDENT_BY_BNO = "SELECT * FROM students WHERE b# = :bNumber";
-    private static final String INSERT_STUDENT = "INSERT INTO students VALUES (:bNumber, :firstName, :lastName, :stLevel, :gpa, :email, :bdate)";
-    private static final String UPDATE_STUDENT = "UPDATE students SET first_name = :firstName, last_name = :lastName, gpa = :gpa, st_level = :stLevel, bdate = :bdate WHERE b# = :bNumber";
-
-    // TODO: 4/20/23 Using stored proc 7 delete a student
-    private static final String DELETE_STUDENT = "DELETE FROM students WHERE b# = :bNumber";
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
+    private final SimpleJdbcCall fetchStudentsSp;
+    private final SimpleJdbcCall deleteStudentSp;
+
+    public StudentDao(
+            NamedParameterJdbcTemplate jdbcTemplate,
+            @Qualifier("fetchStudentsSp") SimpleJdbcCall fetchStudentsSp,
+            @Qualifier("deleteStudentSp") SimpleJdbcCall deleteStudentSp
+    ) {
+        this.jdbcTemplate = jdbcTemplate;
+        this.fetchStudentsSp = fetchStudentsSp;
+        this.deleteStudentSp = deleteStudentSp;
+    }
 
     public Collection<Student> findAllStudents() {
-        return jdbcTemplate.query(FETCH_STUDENTS, ResultSetMapper::toStudent);
+        return fetchStudentsSp.executeObject(ArrayList.class);
     }
 
     public Optional<Student> findByBNumber(String bNumber) {
@@ -78,8 +81,7 @@ public class StudentDao {
         return jdbcTemplate.update(UPDATE_STUDENT, sqlParams);
     }
 
-    public boolean delete(String bNumber) {
-        MapSqlParameterSource sqlParams = new MapSqlParameterSource(DB_COLUMN_MAPPINGS.get(Constants.DB_COL_B_NUMBER), bNumber);
-        return jdbcTemplate.update(DELETE_STUDENT, sqlParams) == 1;
+    public void delete(String bNumber) {
+        deleteStudentSp.execute(new MapSqlParameterSource(DB_COL_B_NUMBER, bNumber));
     }
 }

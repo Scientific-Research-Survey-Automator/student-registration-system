@@ -2,6 +2,7 @@ package edu.binghamton.srs.service;
 
 import edu.binghamton.srs.dao.CourseDao;
 import edu.binghamton.srs.model.Course;
+import edu.binghamton.srs.model.CourseCredit;
 import edu.binghamton.srs.model.PrerequisiteCourse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -34,11 +35,15 @@ public class CourseService {
         }
     }
 
+    public Collection<CourseCredit> fetchCourseCredits() {
+        return courseDao.fetchCourseCredits();
+    }
+
     public Collection<PrerequisiteCourse> fetchAllPrerequisiteCourses() {
         return courseDao.fetchAllPrerequisiteCourses();
     }
 
-    public Collection<PrerequisiteCourse> fetchPrerequisiteCourses(String deptCode, int courseNo) {
+    public Collection<String> fetchPrerequisiteCourses(String deptCode, int courseNo) {
         return courseDao.fetchPrerequisiteCourses(deptCode, courseNo);
     }
 
