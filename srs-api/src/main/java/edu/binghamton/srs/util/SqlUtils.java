@@ -1,9 +1,5 @@
 package edu.binghamton.srs.util;
 
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.simple.SimpleJdbcCall;
-
 public class SqlUtils {
 
     private SqlUtils() {
