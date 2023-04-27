@@ -4,10 +4,12 @@ import edu.binghamton.srs.dao.StudentDao;
 import edu.binghamton.srs.http.StudentUpdateRequest;
 import edu.binghamton.srs.model.Student;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -36,8 +38,10 @@ public class StudentService {
     }
 
     public void deleteStudent(String bNumber) {
-        if (!studentDao.delete(bNumber)) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Failed to delete student with B#: %s", bNumber));
+        try {
+            studentDao.delete(bNumber);
+        } catch (DataAccessException e){
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Failed to delete student(B#: %s) with error message: %s", bNumber, e.getMessage()));
         }
     }
 }

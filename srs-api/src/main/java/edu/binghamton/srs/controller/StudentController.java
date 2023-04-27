@@ -53,7 +53,7 @@ public class StudentController {
         return ResponseEntity.status(httpStatus).body(status);
     }
 
-//    Stored proc Q7
+//    Using stored proc defined under PL/SQL requirements 7 for SRS
     @DeleteMapping("/{bNumber}")
     public ResponseEntity<Boolean> deleteStudent(@PathVariable String bNumber) {
         studentService.deleteStudent(bNumber);

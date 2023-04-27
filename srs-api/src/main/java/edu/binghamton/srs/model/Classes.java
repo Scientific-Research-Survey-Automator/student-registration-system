@@ -2,14 +2,14 @@ package edu.binghamton.srs.model;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.experimental.SuperBuilder;
 
 import java.time.Year;
 
 @Data
-@Builder
-public class Classes {
+@SuperBuilder
+public class Classes extends Course {
     private String classId;
-    private Course course;
     private int section;
     private Year year;
     private String semester;

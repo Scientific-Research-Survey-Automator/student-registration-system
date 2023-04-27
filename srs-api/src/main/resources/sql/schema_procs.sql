@@ -10,12 +10,11 @@ CREATE OR REPLACE PACKAGE SRS AS
     PROCEDURE SHOW_PREREQUISITES(CURSOR_OUTPUT OUT REF_CURSOR);
     PROCEDURE SHOW_SCORE_GRADE(CURSOR_OUTPUT OUT REF_CURSOR);
     PROCEDURE SHOW_STUDENTS(CURSOR_OUTPUT OUT REF_CURSOR);
-    PROCEDURE LIST_CLASS(CID IN CLASSES.CLASSID%TYPE, CURSOR_OUTPUT OUT REF_CURSOR);
-    PROCEDURE GET_PREQ(COURSEID IN PREREQUISITES."COURSE#"%TYPE, DEPT IN PREREQUISITES.DEPT_CODE%TYPE,
-                       CURSOR_OUTPUT OUT REF_CURSOR);
-    PROCEDURE ENROLL_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE);
-    PROCEDURE DROP_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE);
-    PROCEDURE DEL_STUDENT(BID IN STUDENTS."B#"%TYPE);
+    PROCEDURE LIST_CLASS(CLASSID IN CLASSES.CLASSID%TYPE, CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE get_prerequisite_courses(COURSE# IN PREREQUISITES."COURSE#"%TYPE, DEPT_CODE IN PREREQUISITES.DEPT_CODE%TYPE, CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE ENROLL_GRAD(B# IN G_ENROLLMENTS."G_B#"%TYPE, CLASSID IN G_ENROLLMENTS.CLASSID%TYPE);
+    PROCEDURE DROP_GRAD(B# IN G_ENROLLMENTS."G_B#"%TYPE, CLASSID IN G_ENROLLMENTS.CLASSID%TYPE);
+    PROCEDURE DEL_STUDENT(B# IN STUDENTS."B#"%TYPE);
 
 END SRS;^
 
@@ -88,19 +87,19 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
     classid is invalid (i.e., not in the Classes table), report “The classid is invalid.”
 **/
 
-    PROCEDURE LIST_CLASS(CID IN CLASSES.CLASSID%TYPE, CURSOR_OUTPUT OUT REF_CURSOR) IS
+    PROCEDURE LIST_CLASS(CLASSID IN CLASSES.CLASSID%TYPE, CURSOR_OUTPUT OUT REF_CURSOR) IS
         CLASS_COUNT NUMBER;
     BEGIN
-        SELECT COUNT(*) INTO CLASS_COUNT FROM CLASSES c WHERE c.CLASSID = CID;
+        SELECT COUNT(*) INTO CLASS_COUNT FROM CLASSES c WHERE c.CLASSID = LIST_CLASS.CLASSID;
         IF CLASS_COUNT = 0 THEN
-            raise_application_error(-20001, 'The classid: ' || CID || ' is invalid.');
+            raise_application_error(-20001, 'The classid: ' || LIST_CLASS.CLASSID || ' is invalid.');
         END IF;
 
         OPEN CURSOR_OUTPUT FOR
             SELECT s."B#", s.FIRST_NAME, s.LAST_NAME
             FROM G_ENROLLMENTS ge
                      INNER JOIN STUDENTS s ON ge."G_B#" = s."B#"
-            WHERE ge.CLASSID = CID;
+            WHERE ge.CLASSID = LIST_CLASS.CLASSID;
     END LIST_CLASS;
 
 
@@ -114,13 +113,13 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
     report “dept_code || course# does not exist.” – show dept_code and course# together as in CS532.
  **/
 
-    PROCEDURE GET_PREQ(COURSEID IN PREREQUISITES."COURSE#"%TYPE, DEPT IN PREREQUISITES.DEPT_CODE%TYPE,
-                       CURSOR_OUTPUT OUT REF_CURSOR) IS
+    PROCEDURE get_prerequisite_courses(COURSE# IN PREREQUISITES."COURSE#"%TYPE, DEPT_CODE IN PREREQUISITES.DEPT_CODE%TYPE,
+                                       CURSOR_OUTPUT OUT REF_CURSOR) IS
         COURSE_COUNT NUMBER;
     BEGIN
-        SELECT COUNT(*) INTO COURSE_COUNT FROM COURSES c WHERE c.DEPT_CODE = DEPT AND c."COURSE#" = COURSEID;
+        SELECT COUNT(*) INTO COURSE_COUNT FROM COURSES c WHERE c.DEPT_CODE = get_prerequisite_courses.DEPT_CODE AND c."COURSE#" = get_prerequisite_courses.COURSE#;
         IF COURSE_COUNT = 0 THEN
-            raise_application_error(-20002, DEPT || COURSEID || ' does not exist.');
+            raise_application_error(-20002, get_prerequisite_courses.DEPT_CODE || get_prerequisite_courses.COURSE# || ' does not exist.');
         END IF;
         OPEN CURSOR_OUTPUT FOR
             SELECT x.preq
@@ -128,8 +127,8 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
                   FROM (SELECT p.DEPT_CODE || p."COURSE#" course, p.PRE_DEPT_CODE || p."PRE_COURSE#" preq
                         FROM PREREQUISITES p) cp
                   CONNECT BY PRIOR cp.preq = cp.course) x
-            WHERE x.c = DEPT || COURSEID;
-    END GET_PREQ;
+            WHERE x.c = get_prerequisite_courses.DEPT_CODE || get_prerequisite_courses.COURSE#;
+    END get_prerequisite_courses;
 
 
 /*
@@ -153,7 +152,7 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
     implemented outside of the package.)
  */
 
-    PROCEDURE ENROLL_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE) IS
+    PROCEDURE ENROLL_GRAD(B# IN G_ENROLLMENTS."G_B#"%TYPE, CLASSID IN G_ENROLLMENTS.CLASSID%TYPE) IS
         STUDENT_COUNT NUMBER;
         GRAD_COUNT    NUMBER;
         CLASS_COUNT   NUMBER;
@@ -168,56 +167,60 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
         INTO
             STUDENT_COUNT
         FROM STUDENTS s
-        WHERE s."B#" = BID;
+        WHERE s."B#" = ENROLL_GRAD.B#;
         IF STUDENT_COUNT = 0 THEN
-            raise_application_error(-20003, 'The ' || BID || ' is invalid.');
+            raise_application_error(-20003, 'The ' || ENROLL_GRAD.B# || ' is invalid.');
         END IF;
 
         SELECT COUNT(*)
         INTO
             GRAD_COUNT
         FROM STUDENTS s
-        WHERE s."B#" = BID
+        WHERE s."B#" = ENROLL_GRAD.B#
           AND (s.ST_LEVEL = 'master'
             OR s.ST_LEVEL = 'PhD');
         IF GRAD_COUNT = 0 THEN
-            raise_application_error(-20004, 'The Student With BNUMBER: ' || BID || ' is not a graduate student.');
+            raise_application_error(-20004, 'The Student With BNUMBER: ' || ENROLL_GRAD.B# || ' is not a graduate student.');
         END IF;
 
         SELECT count(*)
         INTO CLASS_COUNT
         FROM CLASSES c
-        WHERE c.CLASSID = CID;
+        WHERE c.CLASSID = ENROLL_GRAD.CLASSID;
         IF CLASS_COUNT = 0 THEN
-            raise_application_error(-20001, 'The classid: ' || CID || 'is invalid.');
+            raise_application_error(-20001, 'The classid: ' || ENROLL_GRAD.CLASSID || 'is invalid.');
         END IF;
 
-        SELECT count(*),
-               c.CLASS_SIZE,
-               c."LIMIT"
-        INTO
-            CURRENT_SEM,
-            CLASS_SIZE,
-            CLASS_LIMIT
+        SELECT COUNT(*)
+        INTO CURRENT_SEM
         FROM CLASSES c,
              CUR_SEM cs
-        WHERE c.CLASSID = CID
+        WHERE c.CLASSID = ENROLL_GRAD.CLASSID
           AND cs."YEAR" = c."YEAR"
-          AND c.SEMESTER = c.SEMESTER;
+          AND c.SEMESTER = cs.SEMESTER;
+
         IF CURRENT_SEM = 0 THEN
-            raise_application_error(-20005, 'Cannot enroll into a class:' || CID || ' from a previous semester.');
+            raise_application_error(-20005, 'Cannot enroll into a class:' || ENROLL_GRAD.CLASSID || ' from a previous semester.');
         END IF;
+
+        SELECT c.CLASS_SIZE,
+               c."LIMIT"
+        INTO CLASS_SIZE,
+            CLASS_LIMIT
+        FROM CLASSES c
+        WHERE c.CLASSID = ENROLL_GRAD.CLASSID;
+
         IF CLASS_SIZE = CLASS_LIMIT THEN
-            raise_application_error(-20006, 'The class:' || CID || 'is already full.');
+            raise_application_error(-20006, 'The class:' || ENROLL_GRAD.CLASSID || ' is already full.');
         END IF;
 
         SELECT count(*)
         INTO IN_CLASS
         FROM G_ENROLLMENTS ge
-        WHERE ge.CLASSID = CID
-          AND ge."G_B#" = BID;
+        WHERE ge.CLASSID = ENROLL_GRAD.CLASSID
+          AND ge."G_B#" = ENROLL_GRAD.B#;
         IF IN_CLASS != 0 THEN
-            raise_application_error(-20007, 'The student with B#:' || BID || ' is already in the class:' || CID || '.');
+            raise_application_error(-20007, 'The student with B#:' || ENROLL_GRAD.B# || ' is already in the class:' || ENROLL_GRAD.CLASSID || '.');
         END IF;
 
         SELECT count(*)
@@ -225,39 +228,37 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
         FROM G_ENROLLMENTS ge,
              CLASSES c,
              CUR_SEM cs
-        WHERE ge."G_B#" = BID
+        WHERE ge."G_B#" = ENROLL_GRAD.B#
           AND ge.CLASSID = c.CLASSID
           AND c."YEAR" = cs."YEAR"
           AND c.SEMESTER = cs.SEMESTER;
         IF CURRENT_COUNT = 5 THEN
-            raise_application_error(-20008, 'Student with B#:' || BID || ' cannot be enrolled in the class:' || CID ||
+            raise_application_error(-20008, 'Student with B#:' || ENROLL_GRAD.B# || ' cannot be enrolled in the class:' || ENROLL_GRAD.CLASSID ||
                                             '.Cannot be enrolled in more than five classes in the same semester.');
         END IF;
-
 
         SELECT COUNT(*)
         INTO PRE_NOT_MET
         FROM CLASSES c,
              PREREQUISITES p
-        WHERE c.CLASSID = CID
+        WHERE c.CLASSID = ENROLL_GRAD.CLASSID
           AND c."COURSE#" = p."COURSE#"
           AND c."COURSE#" NOT IN (SELECT c."COURSE#"
                                   FROM G_ENROLLMENTS ge,
                                        CLASSES c,
                                        SCORE_GRADE sg
-                                  WHERE ge."G_B#" = BID
+                                  WHERE ge."G_B#" = ENROLL_GRAD.B#
                                     AND ge.CLASSID = c.CLASSID
                                     AND ge.SCORE = sg.SCORE
                                     AND sg.LGRADE IN ('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'));
 
         IF PRE_NOT_MET != 0 THEN
-            raise_application_error(-20009, 'Student with B#:' || BID || ' cannot be enrolled in the class:' || CID ||
+            raise_application_error(-20009, 'Student with B#:' || ENROLL_GRAD.B# || ' cannot be enrolled in the class:' || ENROLL_GRAD.CLASSID ||
                                             '. Prerequisite not satisfied.');
         END IF;
-        INSERT INTO G_ENROLLMENTS VALUES (BID, CID, NULL);
+        INSERT INTO G_ENROLLMENTS VALUES (ENROLL_GRAD.B#, ENROLL_GRAD.CLASSID, NULL);
 
     END ENROLL_GRAD;
-
 
 /*
 6.  (10 points) Write a procedure in your package to drop a graduate student from a class (i.e., delete a
@@ -273,7 +274,7 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
     drop and all updates caused by the drop need to be implemented using trigger(s).
  */
 
-    PROCEDURE DROP_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE) IS
+    PROCEDURE DROP_GRAD(B# IN G_ENROLLMENTS."G_B#"%TYPE, CLASSID IN G_ENROLLMENTS.CLASSID%TYPE) IS
         STUDENT_COUNT NUMBER;
         GRAD_COUNT    NUMBER;
         CLASS_COUNT   NUMBER;
@@ -285,37 +286,37 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
         INTO
             STUDENT_COUNT
         FROM STUDENTS s
-        WHERE s."B#" = BID;
+        WHERE s."B#" = DROP_GRAD.B#;
         IF STUDENT_COUNT = 0 THEN
-            raise_application_error(-20003, 'The ' || BID || ' is invalid.');
+            raise_application_error(-20003, 'The student B#:' || DROP_GRAD.B# || ' is invalid.');
         END IF;
 
         SELECT COUNT(*)
         INTO
             GRAD_COUNT
         FROM STUDENTS s
-        WHERE s."B#" = BID
+        WHERE s."B#" = DROP_GRAD.B#
           AND (s.ST_LEVEL = 'master'
             OR s.ST_LEVEL = 'PhD');
         IF GRAD_COUNT = 0 THEN
-            raise_application_error(-20004, 'The Student With BNUMBER: ' || BID || ' is not a graduate student.');
+            raise_application_error(-20004, 'The Student With B#: ' || DROP_GRAD.B# || ' is not a graduate student.');
         END IF;
 
         SELECT count(*)
         INTO CLASS_COUNT
         FROM CLASSES c
-        WHERE c.CLASSID = CID;
+        WHERE c.CLASSID = DROP_GRAD.CLASSID;
         IF CLASS_COUNT = 0 THEN
-            raise_application_error(-20001, 'The classid: ' || CID || 'is invalid.');
+            raise_application_error(-20001, 'The classid: ' || DROP_GRAD.CLASSID || 'is invalid.');
         END IF;
 
         SELECT count(*)
         INTO IN_CLASS
         FROM G_ENROLLMENTS ge
-        WHERE ge.CLASSID = CID
-          AND ge."G_B#" = BID;
+        WHERE ge.CLASSID = DROP_GRAD.CLASSID
+          AND ge."G_B#" = DROP_GRAD.B#;
         IF IN_CLASS = 0 THEN
-            raise_application_error(-20010, 'The student with B#:' || BID || ' is not in the class:' || CID || '.');
+            raise_application_error(-20010, 'The student with B#:' || DROP_GRAD.B# || ' is not in the class:' || DROP_GRAD.CLASSID || '.');
         END IF;
 
         SELECT count(*)
@@ -333,16 +334,16 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
         FROM G_ENROLLMENTS ge,
              CLASSES c,
              CUR_SEM cs
-        WHERE ge."G_B#" = BID
+        WHERE ge."G_B#" = DROP_GRAD.B#
           AND ge.CLASSID = c.CLASSID
           AND c."YEAR" = cs."YEAR"
           AND c.SEMESTER = cs.SEMESTER;
         IF LAST_COUNT = 1 THEN
-            raise_application_error(-20012, 'Student with B#:' || BID || ' cannot be drpped from class:' || CID ||
+            raise_application_error(-20012, 'Student with B#:' || DROP_GRAD.B# || ' cannot be drpped from class:' || DROP_GRAD.CLASSID ||
                                             '.This is the only class for this student in current semester');
         END IF;
 
-        DELETE FROM G_ENROLLMENTS ge WHERE ge."G_B#" = BID AND ge.CLASSID = CID;
+        DELETE FROM G_ENROLLMENTS ge WHERE ge."G_B#" = DROP_GRAD.B# AND ge.CLASSID = DROP_GRAD.CLASSID;
 
     END DROP_GRAD;
 
@@ -354,20 +355,19 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
     deleted (use a trigger to implement this). Note that such a deletion may trigger a number of actions
     as described in the above item (item 6).
  */
-
-    PROCEDURE DEL_STUDENT(BID IN STUDENTS."B#"%TYPE) IS
+    PROCEDURE DEL_STUDENT(B# IN STUDENTS."B#"%TYPE) IS
         STUDENT_COUNT NUMBER;
     BEGIN
         SELECT COUNT(*)
         INTO
             STUDENT_COUNT
         FROM STUDENTS s
-        WHERE s."B#" = BID;
+        WHERE s."B#" = DEL_STUDENT.B#;
         IF STUDENT_COUNT = 0 THEN
-            raise_application_error(-20003, 'The ' || BID || ' is invalid.');
+            raise_application_error(-20003, 'The ' || DEL_STUDENT.B# || ' is invalid.');
         END IF;
 
-        DELETE FROM STUDENTS s WHERE s."B#" = BID;
+        DELETE FROM STUDENTS s WHERE s."B#" = DEL_STUDENT.B#;
 
     END DEL_STUDENT;
 

@@ -59,9 +59,10 @@ public class CourseController {
         return ResponseEntity.status(status).body(prerequisiteCourses);
     }
 
+//    Using stored proc defined under PL/SQL requirements 4 for SRS
     @GetMapping("/prerequisites/{deptCode}/{courseNo}")
     public Object getPrerequisiteCourses(@PathVariable String deptCode, @PathVariable int courseNo) {
-        Collection<PrerequisiteCourse> prerequisiteCourses = courseService.fetchPrerequisiteCourses(deptCode, courseNo);
+        Collection<String> prerequisiteCourses = courseService.fetchPrerequisiteCourses(deptCode, courseNo);
         HttpStatus status = CollectionUtils.isEmpty(prerequisiteCourses) ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity.status(status).body(prerequisiteCourses);
     }
