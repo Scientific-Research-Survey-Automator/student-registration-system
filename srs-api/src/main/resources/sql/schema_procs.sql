@@ -1,86 +1,85 @@
 CREATE OR REPLACE PACKAGE SRS AS
 
-TYPE REF_CURSOR IS REF CURSOR;
+    TYPE REF_CURSOR IS REF CURSOR;
 
-PROCEDURE SHOW_CLASSES(CURSOR_OUTPUT OUT REF_CURSOR);^
-PROCEDURE SHOW_COURSES(CURSOR_OUTPUT OUT REF_CURSOR);^
-PROCEDURE SHOW_COURSE_CREDIT(CURSOR_OUTPUT OUT REF_CURSOR);^
-PROCEDURE SHOW_G_ENROLLMENTS(CURSOR_OUTPUT OUT REF_CURSOR);^
-PROCEDURE SHOW_LOGS(CURSOR_OUTPUT OUT REF_CURSOR);^
-PROCEDURE SHOW_PREREQUISITES(CURSOR_OUTPUT OUT REF_CURSOR);^
-PROCEDURE SHOW_SCORE_GRADE(CURSOR_OUTPUT OUT REF_CURSOR);^
-PROCEDURE SHOW_STUDENTS(CURSOR_OUTPUT OUT REF_CURSOR);^
-PROCEDURE LIST_CLASS(CID IN CLASSES.CLASSID%TYPE, CURSOR_OUTPUT OUT REF_CURSOR);^
-PROCEDURE GET_PREQ(COURSEID IN PREREQUISITES."COURSE#"%TYPE, DEPT IN PREREQUISITES.DEPT_CODE%TYPE, CURSOR_OUTPUT OUT REF_CURSOR);^
-PROCEDURE ENROLL_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE);^
-PROCEDURE DROP_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE);^
-PROCEDURE DEL_STUDENT(BID IN STUDENTS."B#"%TYPE);^
+    PROCEDURE SHOW_CLASSES(CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE SHOW_COURSES(CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE SHOW_COURSE_CREDIT(CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE SHOW_G_ENROLLMENTS(CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE SHOW_LOGS(CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE SHOW_PREREQUISITES(CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE SHOW_SCORE_GRADE(CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE SHOW_STUDENTS(CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE LIST_CLASS(CID IN CLASSES.CLASSID%TYPE, CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE GET_PREQ(COURSEID IN PREREQUISITES."COURSE#"%TYPE, DEPT IN PREREQUISITES.DEPT_CODE%TYPE,
+                       CURSOR_OUTPUT OUT REF_CURSOR);
+    PROCEDURE ENROLL_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE);
+    PROCEDURE DROP_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE);
+    PROCEDURE DEL_STUDENT(BID IN STUDENTS."B#"%TYPE);
 
-END SRS;
-^
-show errors
+END SRS;^
 
 CREATE OR REPLACE PACKAGE BODY SRS AS
 
-/*
-2.  (4 points) Write procedures in your package to display the tuples in each of the eight tables for thAS
-    project. As an example, you can write a procedure, say show_students, to display all students in tAS
-    students table.
-**/
+    /*
+    2.  (4 points) Write procedures in your package to display the tuples in each of the eight tables for thAS
+        project. As an example, you can write a procedure, say show_students, to display all students in tAS
+        students table.
+    **/
 
-PROCEDURE SHOW_CLASSES(CURSOR_OUTPUT OUT REF_CURSOR) IS
-BEGIN
-OPEN CURSOR_OUTPUT FOR
-SELECT * FROM CLASSES;
-END SHOW_CLASSES;^
+    PROCEDURE SHOW_CLASSES(CURSOR_OUTPUT OUT REF_CURSOR) IS
+    BEGIN
+        OPEN CURSOR_OUTPUT FOR
+            SELECT * FROM CLASSES;
+    END SHOW_CLASSES;
 
-PROCEDURE SHOW_COURSES(CURSOR_OUTPUT OUT REF_CURSOR) IS
-BEGIN
-OPEN CURSOR_OUTPUT FOR
-SELECT * FROM COURSES;
-END SHOW_COURSES;^
-
-
-PROCEDURE SHOW_COURSE_CREDIT(CURSOR_OUTPUT OUT REF_CURSOR) IS
-BEGIN
-OPEN CURSOR_OUTPUT FOR
-SELECT * FROM COURSE_CREDIT;
-END SHOW_COURSE_CREDIT;^
+    PROCEDURE SHOW_COURSES(CURSOR_OUTPUT OUT REF_CURSOR) IS
+    BEGIN
+        OPEN CURSOR_OUTPUT FOR
+            SELECT * FROM COURSES;
+    END SHOW_COURSES;
 
 
-PROCEDURE SHOW_G_ENROLLMENTS(CURSOR_OUTPUT OUT REF_CURSOR) IS
-BEGIN
-OPEN CURSOR_OUTPUT FOR
-SELECT * FROM G_ENROLLMENTS;
-END SHOW_G_ENROLLMENTS;^
+    PROCEDURE SHOW_COURSE_CREDIT(CURSOR_OUTPUT OUT REF_CURSOR) IS
+    BEGIN
+        OPEN CURSOR_OUTPUT FOR
+            SELECT * FROM COURSE_CREDIT;
+    END SHOW_COURSE_CREDIT;
 
 
-PROCEDURE SHOW_LOGS(CURSOR_OUTPUT OUT REF_CURSOR) IS
-BEGIN
-OPEN CURSOR_OUTPUT FOR
-SELECT * FROM LOGS;
-END SHOW_LOGS;^
+    PROCEDURE SHOW_G_ENROLLMENTS(CURSOR_OUTPUT OUT REF_CURSOR) IS
+    BEGIN
+        OPEN CURSOR_OUTPUT FOR
+            SELECT * FROM G_ENROLLMENTS;
+    END SHOW_G_ENROLLMENTS;
 
 
-PROCEDURE SHOW_PREREQUISITES(CURSOR_OUTPUT OUT REF_CURSOR) IS
-BEGIN
-OPEN CURSOR_OUTPUT FOR
-SELECT * FROM prerequisites;
-END SHOW_PREREQUISITES;^
+    PROCEDURE SHOW_LOGS(CURSOR_OUTPUT OUT REF_CURSOR) IS
+    BEGIN
+        OPEN CURSOR_OUTPUT FOR
+            SELECT * FROM LOGS;
+    END SHOW_LOGS;
 
 
-PROCEDURE SHOW_SCORE_GRADE(CURSOR_OUTPUT OUT REF_CURSOR) IS
-BEGIN
-OPEN CURSOR_OUTPUT FOR
-SELECT * FROM SCORE_GRADE;
-END SHOW_SCORE_GRADE;^
+    PROCEDURE SHOW_PREREQUISITES(CURSOR_OUTPUT OUT REF_CURSOR) IS
+    BEGIN
+        OPEN CURSOR_OUTPUT FOR
+            SELECT * FROM prerequisites;
+    END SHOW_PREREQUISITES;
 
 
-PROCEDURE SHOW_STUDENTS(CURSOR_OUTPUT OUT REF_CURSOR) IS
-BEGIN
-OPEN CURSOR_OUTPUT FOR
-SELECT * FROM STUDENTS;
-END SHOW_STUDENTS;^
+    PROCEDURE SHOW_SCORE_GRADE(CURSOR_OUTPUT OUT REF_CURSOR) IS
+    BEGIN
+        OPEN CURSOR_OUTPUT FOR
+            SELECT * FROM SCORE_GRADE;
+    END SHOW_SCORE_GRADE;
+
+
+    PROCEDURE SHOW_STUDENTS(CURSOR_OUTPUT OUT REF_CURSOR) IS
+    BEGIN
+        OPEN CURSOR_OUTPUT FOR
+            SELECT * FROM STUDENTS;
+    END SHOW_STUDENTS;
 
 
 /*
@@ -89,21 +88,20 @@ END SHOW_STUDENTS;^
     classid is invalid (i.e., not in the Classes table), report “The classid is invalid.”
 **/
 
-PROCEDURE LIST_CLASS(CID IN CLASSES.CLASSID%TYPE, CURSOR_OUTPUT OUT REF_CURSOR) IS
-    CLASS_COUNT NUMBER;
-BEGIN
-SELECT COUNT(*) INTO CLASS_COUNT FROM CLASSES c WHERE c.CLASSID = CID;
-IF CLASS_COUNT = 0 THEN
-        raise_application_error(-20001, 'The classid: ' || CID || ' is invalid.');
-END IF;
+    PROCEDURE LIST_CLASS(CID IN CLASSES.CLASSID%TYPE, CURSOR_OUTPUT OUT REF_CURSOR) IS
+        CLASS_COUNT NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO CLASS_COUNT FROM CLASSES c WHERE c.CLASSID = CID;
+        IF CLASS_COUNT = 0 THEN
+            raise_application_error(-20001, 'The classid: ' || CID || ' is invalid.');
+        END IF;
 
-OPEN CURSOR_OUTPUT FOR
-SELECT s."B#", s.FIRST_NAME, s.LAST_NAME
-FROM G_ENROLLMENTS ge
-         INNER JOIN STUDENTS s ON ge."G_B#" = s."B#"
-WHERE ge.CLASSID = CID;
-END LIST_CLASS;^
-
+        OPEN CURSOR_OUTPUT FOR
+            SELECT s."B#", s.FIRST_NAME, s.LAST_NAME
+            FROM G_ENROLLMENTS ge
+                     INNER JOIN STUDENTS s ON ge."G_B#" = s."B#"
+            WHERE ge.CLASSID = CID;
+    END LIST_CLASS;
 
 
 /*
@@ -116,23 +114,22 @@ END LIST_CLASS;^
     report “dept_code || course# does not exist.” – show dept_code and course# together as in CS532.
  **/
 
-PROCEDURE GET_PREQ(COURSEID IN PREREQUISITES."COURSE#"%TYPE, DEPT IN PREREQUISITES.DEPT_CODE%TYPE, CURSOR_OUTPUT OUT REF_CURSOR) IS
-    COURSE_COUNT NUMBER;
-BEGIN
-SELECT COUNT(*) INTO COURSE_COUNT FROM COURSES c WHERE c.DEPT_CODE = DEPT AND c."COURSE#" = COURSEID;
-IF COURSE_COUNT = 0 THEN
-        raise_application_error(-20002, DEPT || COURSEID || ' does not exist.');
-END IF;
-OPEN CURSOR_OUTPUT FOR
-SELECT x.preq
-FROM (
-         SELECT CONNECT_BY_ROOT cp.course c, cp.preq preq
-         FROM (
-                  SELECT p.DEPT_CODE || p."COURSE#" course, p.PRE_DEPT_CODE || p."PRE_COURSE#" preq
-                  FROM PREREQUISITES p) cp
-             CONNECT BY PRIOR cp.preq = cp.course) x
-WHERE x.c = DEPT || COURSEID;
-END GET_PREQ;^
+    PROCEDURE GET_PREQ(COURSEID IN PREREQUISITES."COURSE#"%TYPE, DEPT IN PREREQUISITES.DEPT_CODE%TYPE,
+                       CURSOR_OUTPUT OUT REF_CURSOR) IS
+        COURSE_COUNT NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO COURSE_COUNT FROM COURSES c WHERE c.DEPT_CODE = DEPT AND c."COURSE#" = COURSEID;
+        IF COURSE_COUNT = 0 THEN
+            raise_application_error(-20002, DEPT || COURSEID || ' does not exist.');
+        END IF;
+        OPEN CURSOR_OUTPUT FOR
+            SELECT x.preq
+            FROM (SELECT CONNECT_BY_ROOT cp.course c, cp.preq preq
+                  FROM (SELECT p.DEPT_CODE || p."COURSE#" course, p.PRE_DEPT_CODE || p."PRE_COURSE#" preq
+                        FROM PREREQUISITES p) cp
+                  CONNECT BY PRIOR cp.preq = cp.course) x
+            WHERE x.c = DEPT || COURSEID;
+    END GET_PREQ;
 
 
 /*
@@ -156,130 +153,110 @@ END GET_PREQ;^
     implemented outside of the package.)
  */
 
-PROCEDURE ENROLL_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE) IS
+    PROCEDURE ENROLL_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE) IS
         STUDENT_COUNT NUMBER;
-        GRAD_COUNT NUMBER;
-        CLASS_COUNT NUMBER;
-        CURRENT_SEM NUMBER;
-        CLASS_SIZE NUMBER;
-        CLASS_LIMIT NUMBER;
-        IN_CLASS NUMBER;
+        GRAD_COUNT    NUMBER;
+        CLASS_COUNT   NUMBER;
+        CURRENT_SEM   NUMBER;
+        CLASS_SIZE    NUMBER;
+        CLASS_LIMIT   NUMBER;
+        IN_CLASS      NUMBER;
         CURRENT_COUNT NUMBER;
-        PRE_NOT_MET NUMBER;
-BEGIN
-SELECT
-    COUNT(*)
-INTO
-    STUDENT_COUNT
-FROM
-    STUDENTS s
-WHERE
-        s."B#" = BID;
-IF STUDENT_COUNT=0 THEN
-            raise_application_error(-20003,'The '||BID||' is invalid.' );
-END IF;
+        PRE_NOT_MET   NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO
+            STUDENT_COUNT
+        FROM STUDENTS s
+        WHERE s."B#" = BID;
+        IF STUDENT_COUNT = 0 THEN
+            raise_application_error(-20003, 'The ' || BID || ' is invalid.');
+        END IF;
 
-SELECT
-    COUNT(*)
-INTO
-    GRAD_COUNT
-FROM
-    STUDENTS s
-WHERE
-        s."B#" = BID
-  AND (s.ST_LEVEL = 'master'
-    OR s.ST_LEVEL = 'PhD');
-IF GRAD_COUNT=0 THEN
-            raise_application_error(-20004,'The Student With BNUMBER: '||BID||' is not a graduate student.' );
-END IF;
+        SELECT COUNT(*)
+        INTO
+            GRAD_COUNT
+        FROM STUDENTS s
+        WHERE s."B#" = BID
+          AND (s.ST_LEVEL = 'master'
+            OR s.ST_LEVEL = 'PhD');
+        IF GRAD_COUNT = 0 THEN
+            raise_application_error(-20004, 'The Student With BNUMBER: ' || BID || ' is not a graduate student.');
+        END IF;
 
-SELECT
-    count(*) INTO CLASS_COUNT
-FROM
-    CLASSES c
-WHERE
-        c.CLASSID = CID;
-IF CLASS_COUNT=0 THEN
-            raise_application_error(-20001,'The classid: '||CID||'is invalid.');
-END IF;
+        SELECT count(*)
+        INTO CLASS_COUNT
+        FROM CLASSES c
+        WHERE c.CLASSID = CID;
+        IF CLASS_COUNT = 0 THEN
+            raise_application_error(-20001, 'The classid: ' || CID || 'is invalid.');
+        END IF;
 
-SELECT
-    count(*),
-    c.CLASS_SIZE,
-    c."LIMIT"
-INTO
-    CURRENT_SEM,
-    CLASS_SIZE,
-    CLASS_LIMIT
-FROM
-    CLASSES c,
-    CUR_SEM cs
-WHERE
-        c.CLASSID = CID
-  AND cs."YEAR" = c."YEAR"
-  AND c.SEMESTER = c.SEMESTER ;
-IF CURRENT_SEM=0 THEN
-            raise_application_error(-20005,'Cannot enroll into a class:'||CID||' from a previous semester.');
-END IF;
-        IF CLASS_SIZE=CLASS_LIMIT THEN
-            raise_application_error(-20006,'The class:'||CID||'is already full.');
-END IF;
+        SELECT count(*),
+               c.CLASS_SIZE,
+               c."LIMIT"
+        INTO
+            CURRENT_SEM,
+            CLASS_SIZE,
+            CLASS_LIMIT
+        FROM CLASSES c,
+             CUR_SEM cs
+        WHERE c.CLASSID = CID
+          AND cs."YEAR" = c."YEAR"
+          AND c.SEMESTER = c.SEMESTER;
+        IF CURRENT_SEM = 0 THEN
+            raise_application_error(-20005, 'Cannot enroll into a class:' || CID || ' from a previous semester.');
+        END IF;
+        IF CLASS_SIZE = CLASS_LIMIT THEN
+            raise_application_error(-20006, 'The class:' || CID || 'is already full.');
+        END IF;
 
-SELECT
-    count(*) INTO IN_CLASS
-FROM
-    G_ENROLLMENTS ge
-WHERE
-        ge.CLASSID = CID
-  AND ge."G_B#" = BID;
-IF IN_CLASS!=0 THEN
-            raise_application_error(-20007,'The student with B#:'||BID|| ' is already in the class:'||CID||'.');
-END IF;
+        SELECT count(*)
+        INTO IN_CLASS
+        FROM G_ENROLLMENTS ge
+        WHERE ge.CLASSID = CID
+          AND ge."G_B#" = BID;
+        IF IN_CLASS != 0 THEN
+            raise_application_error(-20007, 'The student with B#:' || BID || ' is already in the class:' || CID || '.');
+        END IF;
 
-SELECT
-    count(*) INTO CURRENT_COUNT
-FROM
-    G_ENROLLMENTS ge,
-    CLASSES c,
-    CUR_SEM cs
-WHERE
-        ge."G_B#" = BID
-  AND ge.CLASSID = c.CLASSID
-  AND c."YEAR" = cs."YEAR"
-  AND c.SEMESTER = cs.SEMESTER;
-IF CURRENT_COUNT=5 THEN
-            raise_application_error(-20008,'Student with B#:'||BID||' cannot be enrolled in the class:'||CID||'.Cannot be enrolled in more than five classes in the same semester.');
-END IF;
-
-
-SELECT
-    COUNT(*) INTO PRE_NOT_MET
-FROM
-    CLASSES c,
-    PREREQUISITES p
-WHERE
-        c.CLASSID = CID
-  AND c."COURSE#" = p."COURSE#"
-  AND
-        c."COURSE#" NOT IN (
-        SELECT
-            c."COURSE#"
-        FROM
-            G_ENROLLMENTS ge,
-            CLASSES c,
-            SCORE_GRADE sg
-        WHERE
-                ge."G_B#" = BID
+        SELECT count(*)
+        INTO CURRENT_COUNT
+        FROM G_ENROLLMENTS ge,
+             CLASSES c,
+             CUR_SEM cs
+        WHERE ge."G_B#" = BID
           AND ge.CLASSID = c.CLASSID
-          AND ge.SCORE = sg.SCORE
-          AND sg.LGRADE IN ('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'));
+          AND c."YEAR" = cs."YEAR"
+          AND c.SEMESTER = cs.SEMESTER;
+        IF CURRENT_COUNT = 5 THEN
+            raise_application_error(-20008, 'Student with B#:' || BID || ' cannot be enrolled in the class:' || CID ||
+                                            '.Cannot be enrolled in more than five classes in the same semester.');
+        END IF;
 
-IF PRE_NOT_MET!=0 THEN
-            raise_application_error(-20009,'Student with B#:'||BID||' cannot be enrolled in the class:'||CID||'. Prerequisite not satisfied.');
-END IF;
-INSERT INTO G_ENROLLMENTS VALUES (BID,CID,NULL);
 
-END ENROLL_GRAD;^
+        SELECT COUNT(*)
+        INTO PRE_NOT_MET
+        FROM CLASSES c,
+             PREREQUISITES p
+        WHERE c.CLASSID = CID
+          AND c."COURSE#" = p."COURSE#"
+          AND c."COURSE#" NOT IN (SELECT c."COURSE#"
+                                  FROM G_ENROLLMENTS ge,
+                                       CLASSES c,
+                                       SCORE_GRADE sg
+                                  WHERE ge."G_B#" = BID
+                                    AND ge.CLASSID = c.CLASSID
+                                    AND ge.SCORE = sg.SCORE
+                                    AND sg.LGRADE IN ('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'));
+
+        IF PRE_NOT_MET != 0 THEN
+            raise_application_error(-20009, 'Student with B#:' || BID || ' cannot be enrolled in the class:' || CID ||
+                                            '. Prerequisite not satisfied.');
+        END IF;
+        INSERT INTO G_ENROLLMENTS VALUES (BID, CID, NULL);
+
+    END ENROLL_GRAD;
 
 
 /*
@@ -296,91 +273,78 @@ END ENROLL_GRAD;^
     drop and all updates caused by the drop need to be implemented using trigger(s).
  */
 
-PROCEDURE DROP_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE) IS
+    PROCEDURE DROP_GRAD(BID IN G_ENROLLMENTS."G_B#"%TYPE, CID IN G_ENROLLMENTS.CLASSID%TYPE) IS
         STUDENT_COUNT NUMBER;
-        GRAD_COUNT NUMBER;
-        CLASS_COUNT NUMBER;
-        IN_CLASS NUMBER;
+        GRAD_COUNT    NUMBER;
+        CLASS_COUNT   NUMBER;
+        IN_CLASS      NUMBER;
         CURRENT_COUNT NUMBER;
-        LAST_COUNT NUMBER;
-BEGIN
-SELECT
-    COUNT(*)
-INTO
-    STUDENT_COUNT
-FROM
-    STUDENTS s
-WHERE
-        s."B#" = BID;
-IF STUDENT_COUNT=0 THEN
-            raise_application_error(-20003,'The '||BID||' is invalid.' );
-END IF;
+        LAST_COUNT    NUMBER;
+    BEGIN
+        SELECT COUNT(*)
+        INTO
+            STUDENT_COUNT
+        FROM STUDENTS s
+        WHERE s."B#" = BID;
+        IF STUDENT_COUNT = 0 THEN
+            raise_application_error(-20003, 'The ' || BID || ' is invalid.');
+        END IF;
 
-SELECT
-    COUNT(*)
-INTO
-    GRAD_COUNT
-FROM
-    STUDENTS s
-WHERE
-        s."B#" = BID
-  AND (s.ST_LEVEL = 'master'
-    OR s.ST_LEVEL = 'PhD');
-IF GRAD_COUNT=0 THEN
-            raise_application_error(-20004,'The Student With BNUMBER: '||BID||' is not a graduate student.' );
-END IF;
+        SELECT COUNT(*)
+        INTO
+            GRAD_COUNT
+        FROM STUDENTS s
+        WHERE s."B#" = BID
+          AND (s.ST_LEVEL = 'master'
+            OR s.ST_LEVEL = 'PhD');
+        IF GRAD_COUNT = 0 THEN
+            raise_application_error(-20004, 'The Student With BNUMBER: ' || BID || ' is not a graduate student.');
+        END IF;
 
-SELECT
-    count(*) INTO CLASS_COUNT
-FROM
-    CLASSES c
-WHERE
-        c.CLASSID = CID;
-IF CLASS_COUNT=0 THEN
-            raise_application_error(-20001,'The classid: '||CID||'is invalid.');
-END IF;
+        SELECT count(*)
+        INTO CLASS_COUNT
+        FROM CLASSES c
+        WHERE c.CLASSID = CID;
+        IF CLASS_COUNT = 0 THEN
+            raise_application_error(-20001, 'The classid: ' || CID || 'is invalid.');
+        END IF;
 
-SELECT
-    count(*) INTO IN_CLASS
-FROM
-    G_ENROLLMENTS ge
-WHERE
-        ge.CLASSID = CID
-  AND ge."G_B#" = BID;
-IF IN_CLASS=0 THEN
-            raise_application_error(-20010,'The student with B#:'||BID|| ' is not in the class:'||CID||'.');
-END IF;
+        SELECT count(*)
+        INTO IN_CLASS
+        FROM G_ENROLLMENTS ge
+        WHERE ge.CLASSID = CID
+          AND ge."G_B#" = BID;
+        IF IN_CLASS = 0 THEN
+            raise_application_error(-20010, 'The student with B#:' || BID || ' is not in the class:' || CID || '.');
+        END IF;
 
-SELECT
-    count(*) INTO CURRENT_COUNT
-FROM
-    CLASSES c,
-    CUR_SEM cs
-WHERE
-        c."YEAR" = cs."YEAR"
-  AND c.SEMESTER = cs.SEMESTER;
-IF CURRENT_COUNT=0 THEN
-            raise_application_error(-20011,'Only enrollment in the current semester can be dropped.');
-END IF;
+        SELECT count(*)
+        INTO CURRENT_COUNT
+        FROM CLASSES c,
+             CUR_SEM cs
+        WHERE c."YEAR" = cs."YEAR"
+          AND c.SEMESTER = cs.SEMESTER;
+        IF CURRENT_COUNT = 0 THEN
+            raise_application_error(-20011, 'Only enrollment in the current semester can be dropped.');
+        END IF;
 
-SELECT
-    count(*) INTO LAST_COUNT
-FROM
-    G_ENROLLMENTS ge,
-    CLASSES c,
-    CUR_SEM cs
-WHERE
-        ge."G_B#" = BID
-  AND ge.CLASSID = c.CLASSID
-  AND c."YEAR" = cs."YEAR"
-  AND c.SEMESTER = cs.SEMESTER;
-IF LAST_COUNT=1 THEN
-            raise_application_error(-20012,'Student with B#:'||BID||' cannot be drpped from class:'||CID||'.This is the only class for this student in current semester');
-END IF;
+        SELECT count(*)
+        INTO LAST_COUNT
+        FROM G_ENROLLMENTS ge,
+             CLASSES c,
+             CUR_SEM cs
+        WHERE ge."G_B#" = BID
+          AND ge.CLASSID = c.CLASSID
+          AND c."YEAR" = cs."YEAR"
+          AND c.SEMESTER = cs.SEMESTER;
+        IF LAST_COUNT = 1 THEN
+            raise_application_error(-20012, 'Student with B#:' || BID || ' cannot be drpped from class:' || CID ||
+                                            '.This is the only class for this student in current semester');
+        END IF;
 
-DELETE FROM G_ENROLLMENTS ge WHERE ge."G_B#"=BID AND ge.CLASSID=CID;
+        DELETE FROM G_ENROLLMENTS ge WHERE ge."G_B#" = BID AND ge.CLASSID = CID;
 
-END DROP_GRAD;^
+    END DROP_GRAD;
 
 
 /*
@@ -391,31 +355,26 @@ END DROP_GRAD;^
     as described in the above item (item 6).
  */
 
-PROCEDURE DEL_STUDENT(BID IN STUDENTS."B#"%TYPE) IS
+    PROCEDURE DEL_STUDENT(BID IN STUDENTS."B#"%TYPE) IS
         STUDENT_COUNT NUMBER;
-BEGIN
-SELECT
-    COUNT(*)
-INTO
-    STUDENT_COUNT
-FROM
-    STUDENTS s
-WHERE
-        s."B#" = BID;
-IF STUDENT_COUNT=0 THEN
-            raise_application_error(-20003,'The '||BID||' is invalid.' );
-END IF;
+    BEGIN
+        SELECT COUNT(*)
+        INTO
+            STUDENT_COUNT
+        FROM STUDENTS s
+        WHERE s."B#" = BID;
+        IF STUDENT_COUNT = 0 THEN
+            raise_application_error(-20003, 'The ' || BID || ' is invalid.');
+        END IF;
 
-DELETE FROM STUDENTS s WHERE s."B#"=BID;
+        DELETE FROM STUDENTS s WHERE s."B#" = BID;
 
-END DEL_STUDENT;^
+    END DEL_STUDENT;
 
 END SRS;^
 
-show errors
-
 CREATE OR REPLACE PROCEDURE add_course_credit(course_no IN number)
-IS
+    IS
     credits_val NUMBER(1) := 0;
 BEGIN
     IF course_no BETWEEN 100 AND 499 THEN
