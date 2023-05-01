@@ -169,7 +169,7 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
         FROM STUDENTS s
         WHERE s."B#" = ENROLL_GRAD.B#;
         IF STUDENT_COUNT = 0 THEN
-            raise_application_error(-20003, 'The ' || ENROLL_GRAD.B# || ' is invalid.');
+            raise_application_error(-20003, 'The student with B#:' || ENROLL_GRAD.B# || ' is invalid.');
         END IF;
 
         SELECT COUNT(*)
