@@ -1,15 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Table } from "react-bootstrap";
 import StudentsModal from "../Forms/StudentsModal";
 import { StudentType } from "../../types";
+import { getTable } from "../../api";
 
 const Students = () => {
     const [showModal, setShowModal] = useState(false);
+    const [students, setStudents] = useState<StudentType[]>([]);
+
+    const getData = () => {
+        getTable("STUDENT")
+            .then((data) => setStudents(data))
+            .catch((e) => alert(e));
+    };
 
     const saveStudent = (student: StudentType) => {
         console.log("Saving Student:", student);
         return true;
     };
+
+    useEffect(getData, []);
 
     return (
         <Container className="mt-4">
@@ -40,18 +50,20 @@ const Students = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>B00980339</td>
-                        <td>Mark</td>
-                        <td>Otto</td>
-                        <td>Grad</td>
-                        <td>3.5</td>
-                        <td>example@gmail.com</td>
-                        <td>09/09/1990</td>
-                        <td>
-                            <Button variant="danger">Remove</Button>
-                        </td>
-                    </tr>
+                    {students.map((st) => (
+                        <tr key={st.bnumber}>
+                            <td>{st.bnumber}</td>
+                            <td>{st.firstName}</td>
+                            <td>{st.lastName}</td>
+                            <td>{st.stLevel}</td>
+                            <td>{st.gpa}</td>
+                            <td>{st.email}</td>
+                            <td>{st.birthDate}</td>
+                            <td>
+                                <Button variant="danger">Remove</Button>
+                            </td>
+                        </tr>
+                    ))}
                 </tbody>
             </Table>
             <StudentsModal

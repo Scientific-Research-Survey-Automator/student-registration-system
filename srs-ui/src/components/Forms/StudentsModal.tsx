@@ -3,13 +3,13 @@ import { StudentType } from "../../types";
 import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 
 const dummyStudent: StudentType = {
-    "b#": "B00980339",
+    bnumber: "B00980339",
     firstName: "ABC",
     lastName: "XYZ",
     gpa: 3.5,
-    level: "freshman",
+    stLevel: "freshman",
     email: "test@example.com",
-    bdate: "09/09/1990",
+    birthDate: "09/09/1990",
 };
 
 interface StudentsModalProps {
@@ -56,8 +56,8 @@ const StudentsModal = ({ show, close, postStudent }: StudentsModalProps) => {
                         <Col sm="10">
                             <Form.Control
                                 type="text"
-                                value={student["b#"]}
-                                name="b#"
+                                value={student["bnumber"]}
+                                name="bnumber"
                                 onChange={handleChange}
                             />
                         </Col>
@@ -119,7 +119,7 @@ const StudentsModal = ({ show, close, postStudent }: StudentsModalProps) => {
                             Level
                         </Form.Label>
                         <Col sm="10">
-                            <Form.Select name="level" onChange={handleSelect}>
+                            <Form.Select name="stLevel" onChange={handleSelect}>
                                 <option value="freshmen">Freshmen</option>
                                 <option value="sophomore">Sophomore</option>
                                 <option value="junior">Junior</option>
@@ -136,8 +136,8 @@ const StudentsModal = ({ show, close, postStudent }: StudentsModalProps) => {
                         <Col sm="10">
                             <Form.Control
                                 type="date"
-                                value={student.bdate}
-                                name="bdate"
+                                value={student.birthDate}
+                                name="birthDate"
                                 onChange={handleChange}
                             />
                         </Col>

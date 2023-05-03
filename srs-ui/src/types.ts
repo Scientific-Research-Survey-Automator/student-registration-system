@@ -1,11 +1,11 @@
 export type StudentType = {
-    "b#": string;
+    bnumber: string;
     firstName: string;
     lastName: string;
     gpa: number;
-    level: "freshman" | "sophomore" | "junior" | "senior" | "master" | "PhD";
+    stLevel: string;
     email: string;
-    bdate: string;
+    birthDate: string;
 };
 
 export type CourseType = {
