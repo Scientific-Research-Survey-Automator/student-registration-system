@@ -29,9 +29,7 @@ CREATE OR REPLACE TRIGGER student_delete_trigger
     ON STUDENTS
     FOR EACH ROW
 BEGIN
-    DELETE
-    FROM G_ENROLLMENTS ge
-    WHERE ge."G_B#" = :OLD.B#;
+    NULL;
 END;^
 
 

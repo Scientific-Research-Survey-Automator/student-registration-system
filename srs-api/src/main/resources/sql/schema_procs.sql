@@ -357,6 +357,11 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
 
     PROCEDURE DEL_STUDENT(BID IN STUDENTS."B#"%TYPE) IS
         STUDENT_COUNT NUMBER;
+        CURSOR classid_cursor IS
+            SELECT ge.CLASSID
+            FROM G_ENROLLMENTS ge
+            WHERE ge."G_B#" = BID;
+        classid_rec classid_cursor%ROWTYPE;
     BEGIN
         SELECT COUNT(*)
         INTO
@@ -366,6 +371,16 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
         IF STUDENT_COUNT = 0 THEN
             raise_application_error(-20003, 'The ' || BID || ' is invalid.');
         END IF;
+
+        -- Call DROP_GRAD procedure for each enrollment of the student being deleted
+        OPEN classid_cursor;
+        LOOP
+            FETCH classid_cursor INTO classid_rec;
+            EXIT WHEN classid_cursor%NOTFOUND;
+
+            DROP_GRAD(BID, classid_rec.CLASSID);
+        END LOOP;
+        CLOSE classid_cursor;
 
         DELETE FROM STUDENTS s WHERE s."B#" = BID;
 
