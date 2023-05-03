@@ -36,8 +36,6 @@ public class StudentService {
     }
 
     public void deleteStudent(String bNumber) {
-        if (!studentDao.delete(bNumber)) {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, String.format("Failed to delete student with B#: %s", bNumber));
-        }
+        studentDao.delete(bNumber);
     }
 }

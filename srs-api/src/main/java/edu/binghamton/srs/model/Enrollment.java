@@ -9,5 +9,4 @@ public class Enrollment {
     private String bNumber;
     private String classId;
     private Double score;
-    private String grade;
 }

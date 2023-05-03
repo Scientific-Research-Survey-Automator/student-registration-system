@@ -1,8 +1,7 @@
 package edu.binghamton.srs.service;
 
 import edu.binghamton.srs.dao.EnrollmentDao;
-import edu.binghamton.srs.model.EnrollmentDetails;
-import edu.binghamton.srs.model.Student;
+import edu.binghamton.srs.model.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,8 +17,31 @@ public class EnrollmentService {
         return enrollmentDao.search(condition);
     }
 
-    public Collection<Student> fetchStudentsInAClass(String classId) {
-        return enrollmentDao.fetchStudentsInAClass(classId);
+    public Collection<StudentDetails> fetchStudentDetailsInAClass(String classId) {
+        return enrollmentDao.fetchStudentDetailsInAClass(classId);
     }
 
+    public void enrollStudent(String bNumber, String classId) {
+        enrollmentDao.enrollStudent(bNumber, classId);
+    }
+
+    public void disenrollStudent(String bNumber, String classId) {
+        enrollmentDao.disenrollStudent(bNumber, classId);
+    }
+
+    public Collection<Enrollment> fetchEnrollments() {
+        return enrollmentDao.fetchEnrollments();
+    }
+
+    public Collection<Classes> fetchClasses() {
+        return enrollmentDao.fetchClasses();
+    }
+
+    public Collection<ScoreGrade> fetchScoreGrades() {
+        return enrollmentDao.fetchScoreGrades();
+    }
+
+    public Collection<Object> fetchLogs() {
+        return enrollmentDao.fetchLogs();
+    }
 }
