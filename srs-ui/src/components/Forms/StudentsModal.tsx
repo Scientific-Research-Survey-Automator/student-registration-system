@@ -9,13 +9,13 @@ const dummyStudent: StudentType = {
     gpa: 3.5,
     stLevel: "freshman",
     email: "test@example.com",
-    birthDate: "09/09/1990",
+    birthDate: "2023-05-09",
 };
 
 interface StudentsModalProps {
     show: boolean;
     close: () => void;
-    postStudent: (student: StudentType) => boolean;
+    postStudent: (student: StudentType) => void;
 }
 
 const StudentsModal = ({ show, close, postStudent }: StudentsModalProps) => {
@@ -36,8 +36,8 @@ const StudentsModal = ({ show, close, postStudent }: StudentsModalProps) => {
     };
 
     const handleSave = () => {
-        const res = postStudent(student);
-        if (res) close();
+        postStudent(student);
+        close();
     };
 
     return (
@@ -56,7 +56,7 @@ const StudentsModal = ({ show, close, postStudent }: StudentsModalProps) => {
                         <Col sm="10">
                             <Form.Control
                                 type="text"
-                                value={student["bnumber"]}
+                                value={student.bnumber}
                                 name="bnumber"
                                 onChange={handleChange}
                             />

@@ -12,4 +12,9 @@ export const getDummyTableData = (table: string) => {
             },
         ];
     }
+    return [];
+};
+
+export const getPath = (table: string) => {
+    if (table === "STUDENT") return "/students/";
 };

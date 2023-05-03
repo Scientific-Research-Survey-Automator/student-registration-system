@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Table } from "react-bootstrap";
 import StudentsModal from "../Forms/StudentsModal";
 import { StudentType } from "../../types";
-import { getTable } from "../../api";
+import { getTable, postEntity } from "../../api";
 
 const Students = () => {
     const [showModal, setShowModal] = useState(false);
@@ -15,8 +15,9 @@ const Students = () => {
     };
 
     const saveStudent = (student: StudentType) => {
-        console.log("Saving Student:", student);
-        return true;
+        postEntity("STUDENT", student)
+            .then((data) => setStudents([...students, data]))
+            .catch((e) => alert(e));
     };
 
     useEffect(getData, []);
@@ -50,8 +51,8 @@ const Students = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {students.map((st) => (
-                        <tr key={st.bnumber}>
+                    {students.map((st, i) => (
+                        <tr key={i}>
                             <td>{st.bnumber}</td>
                             <td>{st.firstName}</td>
                             <td>{st.lastName}</td>
