@@ -6,13 +6,9 @@ export const getTable = async (table: string) => {
     console.log("Fetching table", table);
     const url = API_URL + "/tables/" + table;
 
-    try {
-        const resp = await axios.get(url);
-        console.log(resp.data);
-        return resp.data;
-    } catch (e) {
-        return getDummyTableData(table);
-    }
+    const resp = await axios.get(url);
+    console.log(resp.data);
+    return resp.data;
 };
 
 export const postEntity = async (table: string, data: any) => {
@@ -21,11 +17,18 @@ export const postEntity = async (table: string, data: any) => {
     const entityPath = getPath(table);
     const url = API_URL + entityPath;
 
-    try {
-        const resp = await axios.post(url, data);
-        console.log(resp.data);
-        return resp.data;
-    } catch (e) {
-        return getDummyTableData(table)[0];
-    }
+    const resp = await axios.post(url, data);
+    console.log(resp.data);
+    return resp.data;
+};
+
+export const deleteEntity = async (table: string, id: any) => {
+    console.log("Deleting from ", table);
+    console.log("With id ", id);
+    const entityPath = getPath(table);
+    const url = API_URL + entityPath + id;
+
+    const resp = await axios.delete(url);
+    console.log(resp.data);
+    return resp.data;
 };

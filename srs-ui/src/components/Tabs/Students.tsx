@@ -2,25 +2,45 @@ import React, { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Table } from "react-bootstrap";
 import StudentsModal from "../Forms/StudentsModal";
 import { StudentType } from "../../types";
-import { getTable, postEntity } from "../../api";
+import { deleteEntity, getTable, postEntity } from "../../api";
 
 const Students = () => {
     const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [students, setStudents] = useState<StudentType[]>([]);
 
     const getData = () => {
-        getTable("STUDENT")
+        setLoading(true);
+        getTable("STUDENTS")
             .then((data) => setStudents(data))
-            .catch((e) => alert(e));
+            .catch((e) => alert(e))
+            .finally(() => setLoading(false));
     };
 
     const saveStudent = (student: StudentType) => {
-        postEntity("STUDENT", student)
+        setLoading(true);
+        postEntity("STUDENTS", student)
             .then((data) => setStudents([...students, data]))
-            .catch((e) => alert(e));
+            .catch((e) => alert(e))
+            .finally(() => setLoading(false));
+    };
+
+    const removeStudent = (id: string) => {
+        setLoading(true);
+        deleteEntity("STUDENTS", id)
+            .then((data) => {
+                const updatedStudents = students.filter(
+                    (st) => st.bnumber !== id
+                );
+                setStudents(updatedStudents);
+            })
+            .catch((e) => alert(e))
+            .finally(() => setLoading(false));
     };
 
     useEffect(getData, []);
+
+    if (loading) return <h4>Loading</h4>;
 
     return (
         <Container className="mt-4">
@@ -61,7 +81,12 @@ const Students = () => {
                             <td>{st.email}</td>
                             <td>{st.birthDate}</td>
                             <td>
-                                <Button variant="danger">Remove</Button>
+                                <Button
+                                    variant="danger"
+                                    onClick={() => removeStudent(st.bnumber)}
+                                >
+                                    Remove
+                                </Button>
                             </td>
                         </tr>
                     ))}

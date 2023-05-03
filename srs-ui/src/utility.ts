@@ -16,5 +16,5 @@ export const getDummyTableData = (table: string) => {
 };
 
 export const getPath = (table: string) => {
-    if (table === "STUDENT") return "/students/";
+    if (table === "STUDENTS") return "/students/";
 };

@@ -4,7 +4,7 @@ import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 
 const dummyCourse: CourseType = {
     deptCode: "IS",
-    "course#": 501,
+    courseNo: 501,
     title: "Data mining",
 };
 
@@ -58,8 +58,8 @@ const CoursesModal = ({ show, close, postCourse }: CoursesModalProps) => {
                         <Col sm="10">
                             <Form.Control
                                 type="number"
-                                value={course["course#"]}
-                                name="course#"
+                                value={course.courseNo}
+                                name="courseNo"
                                 onChange={handleChange}
                             />
                         </Col>

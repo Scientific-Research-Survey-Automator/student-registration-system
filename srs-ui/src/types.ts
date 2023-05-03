@@ -10,7 +10,7 @@ export type StudentType = {
 
 export type CourseType = {
     deptCode: string;
-    "course#": number;
+    courseNo: number;
     title: string;
 };
 
@@ -19,4 +19,25 @@ export type PreReqType = {
     "course#": number;
     prDeptCode: string;
     "prCourse#": number;
+};
+
+export type CourseCredit = {
+    courseNo: number;
+    credits: number;
+};
+
+export type Class = {
+    classId: string;
+    section: number;
+    year: string;
+    semester: string;
+    limit: number;
+    size: number;
+    room: string;
+};
+
+export type Enrollment = {
+    bNumber: string;
+    classId: string;
+    score: number;
 };
