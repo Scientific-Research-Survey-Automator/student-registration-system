@@ -25,6 +25,19 @@ export const getClassStudents = async (cId: string) => {
     }
 };
 
+export const getPreReq = async (courseNo: string, deptCode: string) => {
+    console.log("Fetching prereq for", courseNo, deptCode);
+    const url = API_URL + "/courses/prerequisites/" + deptCode + "/" + courseNo;
+
+    try {
+        const resp = await axios.get(url);
+        console.log(resp.data);
+        return resp.data;
+    } catch (e: any) {
+        throw new Error(e.response.data.message);
+    }
+};
+
 export const postEntity = async (table: string, data: any) => {
     console.log("Posting to ", table);
     console.log("With data ", data);

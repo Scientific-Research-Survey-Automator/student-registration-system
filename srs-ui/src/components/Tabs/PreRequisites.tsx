@@ -10,12 +10,15 @@ import {
 import PreRequisiteModal from "../Forms/PreRequisiteModal";
 import { useState, useEffect } from "react";
 import { PreReqType } from "../../types";
-import { getTable } from "../../api";
+import { getPreReq, getTable } from "../../api";
 
 const PreRequisites = () => {
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [deptCode, setDeptCode] = useState("");
+    const [courseNo, setCourseNo] = useState("");
     const [prereq, setPrereq] = useState<PreReqType[]>([]);
+    const [res, setRes] = useState([]);
 
     const getData = () => {
         setLoading(true);
@@ -25,9 +28,14 @@ const PreRequisites = () => {
             .finally(() => setLoading(false));
     };
 
-    const savePreRequisite = (preReq: PreReqType) => {
-        console.log("Saving PreRequisite:", preReq);
-        return true;
+    const fetchPreReq = () => {
+        if (courseNo === "" || deptCode === "") {
+            alert("Invalid Input");
+            return;
+        }
+        getPreReq(courseNo, deptCode)
+            .then((data) => setRes(data))
+            .catch((e) => alert(e));
     };
 
     if (loading) return <h4>Loading</h4>;
@@ -35,16 +43,8 @@ const PreRequisites = () => {
     return (
         <Container>
             <Row className="justify-content-between">
-                <Col md={10}>
+                <Col md={3}>
                     <h2>PreRequisites</h2>
-                </Col>
-                <Col>
-                    <Button
-                        variant="outline-primary"
-                        onClick={() => setShowModal(true)}
-                    >
-                        ADD
-                    </Button>
                 </Col>
             </Row>
             <Table>
@@ -57,15 +57,14 @@ const PreRequisites = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {prereq &&
-                        prereq.map((pr, i) => (
-                            <tr key={i}>
-                                <td>{pr.deptCode}</td>
-                                <td>{pr.courseNo}</td>
-                                <td>{pr.preDeptCode}</td>
-                                <td>{pr.preCourseNo}</td>
-                            </tr>
-                        ))}
+                    {prereq.map((pr, i) => (
+                        <tr key={i}>
+                            <td>{pr.deptCode}</td>
+                            <td>{pr.courseNo}</td>
+                            <td>{pr.preDeptCode}</td>
+                            <td>{pr.preCourseNo}</td>
+                        </tr>
+                    ))}
                 </tbody>
             </Table>
 
@@ -76,12 +75,44 @@ const PreRequisites = () => {
                     </Button>
                 </Col>
             </Row>
-
-            <PreRequisiteModal
-                show={showModal}
-                close={() => setShowModal(false)}
-                postPreReq={savePreRequisite}
-            />
+            <Row className="justify-content-between">
+                <Col>
+                    <h5>Prerequisites Courses (indirect and direct)</h5>
+                </Col>
+                <Col md={4}>
+                    <InputGroup className="mb-3">
+                        <Form.Control
+                            type="text"
+                            placeholder="Dept Code"
+                            value={deptCode}
+                            onChange={(e) => setDeptCode(e.target.value)}
+                        />
+                        <Form.Control
+                            type="text"
+                            placeholder="Course#"
+                            value={courseNo}
+                            onChange={(e) => setCourseNo(e.target.value)}
+                        />
+                        <Button variant="secondary" onClick={fetchPreReq}>
+                            Fetch
+                        </Button>
+                    </InputGroup>
+                </Col>
+            </Row>
+            <Table>
+                <thead>
+                    <tr>
+                        <th>Courses</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {res.map((r, i) => (
+                        <tr key={i}>
+                            <td>{r}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
         </Container>
     );
 };
