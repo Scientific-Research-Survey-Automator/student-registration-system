@@ -1,4 +1,5 @@
 package edu.binghamton.srs.config;
+
 import lombok.NonNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,3 +20,4 @@ public class ApplicationConfig {
         };
     }
 }
+
