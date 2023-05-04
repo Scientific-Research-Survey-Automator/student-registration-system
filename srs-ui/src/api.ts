@@ -49,11 +49,34 @@ export const postEntity = async (table: string, data: any) => {
     return resp.data;
 };
 
+export const postEnrollment = async (bnumber: string, classId: string) => {
+    console.log("Posting to enrollment with", bnumber, classId);
+
+    const url = API_URL + "/enrollment/" + bnumber + "/" + classId;
+    try {
+        const resp = await axios.post(url);
+        console.log(resp.data);
+        return resp.data;
+    } catch (e: any) {
+        throw new Error(e.response.data.message);
+    }
+};
+
 export const deleteEntity = async (table: string, id: any) => {
     console.log("Deleting from ", table);
     console.log("With id ", id);
     const entityPath = getPath(table);
     const url = API_URL + entityPath + id;
+
+    const resp = await axios.delete(url);
+    console.log(resp.data);
+    return resp.data;
+};
+
+export const deEnroll = async (bnum: string, clId: string) => {
+    console.log("deEnrolling ", bnum, clId);
+
+    const url = API_URL + "/enrollment/" + bnum + "/" + clId;
 
     const resp = await axios.delete(url);
     console.log(resp.data);
