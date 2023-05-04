@@ -8,20 +8,24 @@ import {
     Table,
 } from "react-bootstrap";
 import { useState } from "react";
-import { Enrollment } from "../../types";
-import { getTable } from "../../api";
+import { Enrollment, StudentType } from "../../types";
+import { getTable, getClassStudents } from "../../api";
 
 const Enrollments = () => {
-    const [showModal, setShowModal] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [classId, setClassId] = useState("");
     const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+    const [classStudents, setClassStudents] = useState<StudentType[]>([]);
 
     const getData = () => {
-        setLoading(true);
         getTable("G_ENROLLMENTS")
             .then((data) => setEnrollments(data))
-            .catch((e) => alert(e))
-            .finally(() => setLoading(false));
+            .catch((e) => alert(e));
+    };
+
+    const fetchClassStudents = () => {
+        getClassStudents(classId)
+            .then((data) => setClassStudents(data))
+            .catch((e) => alert(e));
     };
     return (
         <Container>
@@ -72,6 +76,47 @@ const Enrollments = () => {
                     </Button>
                 </Col>
             </Row>
+            <Container>
+                <h2>Students In a Class</h2>
+                <Row>
+                    <Col md={4}>
+                        <InputGroup className="mb-3">
+                            <InputGroup.Text id="basic-addon1">
+                                Class Id
+                            </InputGroup.Text>
+                            <Form.Control
+                                placeholder="101"
+                                type="text"
+                                onChange={(e) => setClassId(e.target.value)}
+                            />
+                            <Button
+                                variant="outline-secondary"
+                                onClick={fetchClassStudents}
+                            >
+                                Fetch
+                            </Button>
+                        </InputGroup>
+                    </Col>
+                </Row>
+                <Table striped bordered hover>
+                    <thead>
+                        <tr>
+                            <th>G_B#</th>
+                            <th>first name</th>
+                            <th>last name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {classStudents.map((clst, i) => (
+                            <tr key={i}>
+                                <td>{clst.bnumber}</td>
+                                <td>{clst.firstName}</td>
+                                <td>{clst.lastName}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
+            </Container>
         </Container>
     );
 };

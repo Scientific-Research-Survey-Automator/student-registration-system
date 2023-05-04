@@ -11,7 +11,7 @@ import ScoreGrade from "./Tabs/ScoreGrade";
 const Dashboard = () => {
     return (
         <Container className="mt-4">
-            <Tabs defaultActiveKey="students" className="mb-3">
+            <Tabs defaultActiveKey="STUDENTS" className="mb-3">
                 <Tab eventKey="STUDENTS" title="Students">
                     <StudentTable />
                 </Tab>

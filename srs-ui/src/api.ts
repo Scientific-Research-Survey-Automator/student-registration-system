@@ -1,6 +1,7 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { API_URL } from "./constants";
 import { getDummyTableData, getPath } from "./utility";
+import { ErrorInfo } from "react";
 
 export const getTable = async (table: string) => {
     console.log("Fetching table", table);
@@ -9,6 +10,19 @@ export const getTable = async (table: string) => {
     const resp = await axios.get(url);
     console.log(resp.data);
     return resp.data;
+};
+
+export const getClassStudents = async (cId: string) => {
+    console.log("Fetching students for", cId);
+    const url = API_URL + "/enrollment/class/" + cId + "/students";
+
+    try {
+        const resp = await axios.get(url);
+        console.log(resp.data);
+        return resp.data;
+    } catch (e: any) {
+        throw new Error(e.response.data.message);
+    }
 };
 
 export const postEntity = async (table: string, data: any) => {
