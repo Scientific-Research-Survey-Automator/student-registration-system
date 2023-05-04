@@ -51,7 +51,7 @@ const Students = () => {
                         variant="outline-primary"
                         onClick={() => setShowModal(true)}
                     >
-                        Enroll
+                        ADD
                     </Button>
                 </Col>
             </Row>

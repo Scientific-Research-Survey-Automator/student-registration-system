@@ -46,3 +46,12 @@ export type Grade = {
     score: number;
     lgrade: string;
 };
+
+export type Log = {
+    "LOG#": number;
+    USER_NAME: string;
+    OP_TIME: string;
+    TABLE_NAME: string;
+    OPERATION: string;
+    TUPLE_KEYVALUE: string;
+};

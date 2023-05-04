@@ -7,6 +7,7 @@ import PreRequisites from "./Tabs/PreRequisites";
 import CourseCredits from "./Tabs/CourseCredits";
 import Classes from "./Tabs/Classes";
 import ScoreGrade from "./Tabs/ScoreGrade";
+import LogTable from "./Tabs/LogTable";
 
 const Dashboard = () => {
     return (
@@ -32,6 +33,9 @@ const Dashboard = () => {
                 </Tab>
                 <Tab eventKey="SCORE_GRADE" title="Grades">
                     <ScoreGrade />
+                </Tab>
+                <Tab eventKey="LOGS" title="Logs">
+                    <LogTable />
                 </Tab>
             </Tabs>
         </Container>
