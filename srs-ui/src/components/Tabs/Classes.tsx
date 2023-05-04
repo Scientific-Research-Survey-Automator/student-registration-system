@@ -1,25 +1,17 @@
 import { useState, useEffect } from "react";
 import { Button, Col, Container, Row, Table } from "react-bootstrap";
-import { CourseCredit } from "../../types";
+import { Class, CourseCredit } from "../../types";
 import { getTable, postEntity } from "../../api";
 
-const CourseCredits = () => {
+const Classes = () => {
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [courseCreds, setCourseCred] = useState<CourseCredit[]>([]);
+    const [classes, setClasses] = useState<Class[]>([]);
 
     const getData = () => {
         setLoading(true);
-        getTable("COURSE_CREDIT")
-            .then((data) => setCourseCred(data))
-            .catch((e) => alert(e))
-            .finally(() => setLoading(false));
-    };
-
-    const saveCourseCredit = (courseCred: CourseCredit) => {
-        setLoading(true);
-        postEntity("COURSE_CREDIT", courseCred)
-            .then((data) => setCourseCred([...courseCreds, data]))
+        getTable("CLASSES")
+            .then((data) => setClasses(data))
             .catch((e) => alert(e))
             .finally(() => setLoading(false));
     };
@@ -38,15 +30,25 @@ const CourseCredits = () => {
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>Course#</th>
-                        <th>Credits</th>
+                        <th>classId</th>
+                        <th>room</th>
+                        <th>section</th>
+                        <th>semester</th>
+                        <th>size</th>
+                        <th>year</th>
+                        <th>limit</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {courseCreds.map((cc, i) => (
+                    {classes.map((cl, i) => (
                         <tr key={i}>
-                            <td>{cc.courseNo}</td>
-                            <td>{cc.credits}</td>
+                            <td>{cl.classId}</td>
+                            <td>{cl.room}</td>
+                            <td>{cl.section}</td>
+                            <td>{cl.semester}</td>
+                            <td>{cl.size}</td>
+                            <td>{cl.year}</td>
+                            <td>{cl.limit}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -62,4 +64,4 @@ const CourseCredits = () => {
     );
 };
 
-export default CourseCredits;
+export default Classes;

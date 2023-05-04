@@ -1,8 +1,6 @@
 package edu.binghamton.srs.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDate;
@@ -10,6 +8,8 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Student extends StudentDetails {
 
     private String stLevel;

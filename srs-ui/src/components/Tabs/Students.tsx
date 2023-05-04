@@ -2,25 +2,43 @@ import React, { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Table } from "react-bootstrap";
 import StudentsModal from "../Forms/StudentsModal";
 import { StudentType } from "../../types";
-import { getTable, postEntity } from "../../api";
+import { deleteEntity, getTable, postEntity } from "../../api";
 
 const Students = () => {
     const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(false);
     const [students, setStudents] = useState<StudentType[]>([]);
 
     const getData = () => {
-        getTable("STUDENT")
+        setLoading(true);
+        getTable("STUDENTS")
             .then((data) => setStudents(data))
-            .catch((e) => alert(e));
+            .catch((e) => alert(e))
+            .finally(() => setLoading(false));
     };
 
     const saveStudent = (student: StudentType) => {
-        postEntity("STUDENT", student)
+        setLoading(true);
+        postEntity("STUDENTS", student)
             .then((data) => setStudents([...students, data]))
-            .catch((e) => alert(e));
+            .catch((e) => alert(e))
+            .finally(() => setLoading(false));
     };
 
-    useEffect(getData, []);
+    const removeStudent = (id: string) => {
+        setLoading(true);
+        deleteEntity("STUDENTS", id)
+            .then((data) => {
+                const updatedStudents = students.filter(
+                    (st) => st.bnumber !== id
+                );
+                setStudents(updatedStudents);
+            })
+            .catch((e) => alert(e))
+            .finally(() => setLoading(false));
+    };
+
+    if (loading) return <h4>Loading</h4>;
 
     return (
         <Container className="mt-4">
@@ -33,7 +51,7 @@ const Students = () => {
                         variant="outline-primary"
                         onClick={() => setShowModal(true)}
                     >
-                        Enroll
+                        ADD
                     </Button>
                 </Col>
             </Row>
@@ -51,22 +69,37 @@ const Students = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {students.map((st, i) => (
-                        <tr key={i}>
-                            <td>{st.bnumber}</td>
-                            <td>{st.firstName}</td>
-                            <td>{st.lastName}</td>
-                            <td>{st.stLevel}</td>
-                            <td>{st.gpa}</td>
-                            <td>{st.email}</td>
-                            <td>{st.birthDate}</td>
-                            <td>
-                                <Button variant="danger">Remove</Button>
-                            </td>
-                        </tr>
-                    ))}
+                    {students &&
+                        students.map((st, i) => (
+                            <tr key={i}>
+                                <td>{st.bnumber}</td>
+                                <td>{st.firstName}</td>
+                                <td>{st.lastName}</td>
+                                <td>{st.stLevel}</td>
+                                <td>{st.gpa}</td>
+                                <td>{st.email}</td>
+                                <td>{st.birthDate}</td>
+                                <td>
+                                    <Button
+                                        variant="danger"
+                                        onClick={() =>
+                                            removeStudent(st.bnumber)
+                                        }
+                                    >
+                                        Remove
+                                    </Button>
+                                </td>
+                            </tr>
+                        ))}
                 </tbody>
             </Table>
+            <Row className="justify-content-center">
+                <Col md={2}>
+                    <Button variant="success" onClick={getData}>
+                        Load Table
+                    </Button>
+                </Col>
+            </Row>
             <StudentsModal
                 show={showModal}
                 close={() => setShowModal(false)}

@@ -4,14 +4,14 @@ import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 
 const dummyCourse: CourseType = {
     deptCode: "IS",
-    "course#": 501,
+    courseNo: 501,
     title: "Data mining",
 };
 
 interface CoursesModalProps {
     show: boolean;
     close: () => void;
-    postCourse: (course: CourseType) => boolean;
+    postCourse: (course: CourseType) => void;
 }
 
 const CoursesModal = ({ show, close, postCourse }: CoursesModalProps) => {
@@ -25,8 +25,8 @@ const CoursesModal = ({ show, close, postCourse }: CoursesModalProps) => {
     };
 
     const handleSave = () => {
-        const res = postCourse(course);
-        if (res) close();
+        postCourse(course);
+        close();
     };
 
     return (
@@ -58,8 +58,8 @@ const CoursesModal = ({ show, close, postCourse }: CoursesModalProps) => {
                         <Col sm="10">
                             <Form.Control
                                 type="number"
-                                value={course["course#"]}
-                                name="course#"
+                                value={course.courseNo}
+                                name="courseNo"
                                 onChange={handleChange}
                             />
                         </Col>
