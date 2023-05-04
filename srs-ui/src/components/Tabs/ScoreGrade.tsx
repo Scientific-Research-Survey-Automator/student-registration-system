@@ -8,24 +8,24 @@ import {
     Table,
 } from "react-bootstrap";
 import { useState } from "react";
-import { Enrollment } from "../../types";
+import { Enrollment, Grade } from "../../types";
 import { getTable } from "../../api";
 
-const Enrollments = () => {
+const ScoreGrade = () => {
     const [showModal, setShowModal] = useState(false);
     const [loading, setLoading] = useState(false);
-    const [enrollments, setEnrollments] = useState<Enrollment[]>([]);
+    const [scoreGrades, setScoreGrades] = useState<Grade[]>([]);
 
     const getData = () => {
         setLoading(true);
-        getTable("G_ENROLLMENTS")
-            .then((data) => setEnrollments(data))
+        getTable("SCORE_GRADE")
+            .then((data) => setScoreGrades(data))
             .catch((e) => alert(e))
             .finally(() => setLoading(false));
     };
     return (
         <Container>
-            <h2>Enrollments</h2>
+            <h2>SCORE GRADE</h2>
             {/* <Row>
                 <Col md={3}>
                     <Button variant="primary">Fetch All</Button>
@@ -46,18 +46,16 @@ const Enrollments = () => {
             <Table striped bordered hover>
                 <thead>
                     <tr>
-                        <th>G_B#</th>
-                        <th>Class Id</th>
                         <th>Score</th>
+                        <th>Grade</th>
                         {/* <th>Action</th> */}
                     </tr>
                 </thead>
                 <tbody>
-                    {enrollments.map((en, i) => (
+                    {scoreGrades.map((sg, i) => (
                         <tr key={i}>
-                            <td>{en.bnumber}</td>
-                            <td>{en.classId}</td>
-                            <td>{en.score}</td>
+                            <td>{sg.score}</td>
+                            <td>{sg.lgrade}</td>
                             {/* <td>
                                 <Button variant="danger">Delete</Button>
                             </td> */}
@@ -76,4 +74,4 @@ const Enrollments = () => {
     );
 };
 
-export default Enrollments;
+export default ScoreGrade;

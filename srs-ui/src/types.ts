@@ -16,9 +16,9 @@ export type CourseType = {
 
 export type PreReqType = {
     deptCode: string;
-    "course#": number;
-    prDeptCode: string;
-    "prCourse#": number;
+    courseNo: number;
+    preDeptCode: string;
+    preCourseNo: number;
 };
 
 export type CourseCredit = {
@@ -37,7 +37,12 @@ export type Class = {
 };
 
 export type Enrollment = {
-    bNumber: string;
+    bnumber: string;
     classId: string;
     score: number;
+};
+
+export type Grade = {
+    score: number;
+    lgrade: string;
 };

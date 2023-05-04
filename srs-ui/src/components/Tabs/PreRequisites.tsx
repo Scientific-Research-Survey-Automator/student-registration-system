@@ -8,25 +8,37 @@ import {
     Table,
 } from "react-bootstrap";
 import PreRequisiteModal from "../Forms/PreRequisiteModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PreReqType } from "../../types";
+import { getTable } from "../../api";
 
 const PreRequisites = () => {
     const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [prereq, setPrereq] = useState<PreReqType[]>([]);
+
+    const getData = () => {
+        setLoading(true);
+        getTable("PREREQUISITES")
+            .then((data) => setPrereq(data))
+            .catch((e) => alert(e))
+            .finally(() => setLoading(false));
+    };
 
     const savePreRequisite = (preReq: PreReqType) => {
         console.log("Saving PreRequisite:", preReq);
         return true;
     };
 
+    if (loading) return <h4>Loading</h4>;
+
     return (
         <Container>
-            <h2>PreRequisites</h2>
-            <Row>
-                <Col md={3}>
-                    <Button variant="primary">Fetch All</Button>
+            <Row className="justify-content-between">
+                <Col md={10}>
+                    <h2>PreRequisites</h2>
                 </Col>
-                <Col md={{ span: 3, offset: 6 }}>
+                <Col>
                     <Button
                         variant="outline-primary"
                         onClick={() => setShowModal(true)}
@@ -38,7 +50,6 @@ const PreRequisites = () => {
             <Table>
                 <thead>
                     <tr>
-                        <th>#</th>
                         <th>Dept Code</th>
                         <th>Course#</th>
                         <th>PR Dept Code</th>
@@ -46,15 +57,25 @@ const PreRequisites = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>IS</td>
-                        <td>501</td>
-                        <td>IS</td>
-                        <td>502</td>
-                    </tr>
+                    {prereq &&
+                        prereq.map((pr, i) => (
+                            <tr key={i}>
+                                <td>{pr.deptCode}</td>
+                                <td>{pr.courseNo}</td>
+                                <td>{pr.preDeptCode}</td>
+                                <td>{pr.preCourseNo}</td>
+                            </tr>
+                        ))}
                 </tbody>
             </Table>
+
+            <Row className="justify-content-center">
+                <Col md={2}>
+                    <Button variant="success" onClick={getData}>
+                        Load Table
+                    </Button>
+                </Col>
+            </Row>
 
             <PreRequisiteModal
                 show={showModal}

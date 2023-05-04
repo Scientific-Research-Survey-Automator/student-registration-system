@@ -38,8 +38,6 @@ const Students = () => {
             .finally(() => setLoading(false));
     };
 
-    useEffect(getData, []);
-
     if (loading) return <h4>Loading</h4>;
 
     return (
@@ -71,27 +69,37 @@ const Students = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {students.map((st, i) => (
-                        <tr key={i}>
-                            <td>{st.bnumber}</td>
-                            <td>{st.firstName}</td>
-                            <td>{st.lastName}</td>
-                            <td>{st.stLevel}</td>
-                            <td>{st.gpa}</td>
-                            <td>{st.email}</td>
-                            <td>{st.birthDate}</td>
-                            <td>
-                                <Button
-                                    variant="danger"
-                                    onClick={() => removeStudent(st.bnumber)}
-                                >
-                                    Remove
-                                </Button>
-                            </td>
-                        </tr>
-                    ))}
+                    {students &&
+                        students.map((st, i) => (
+                            <tr key={i}>
+                                <td>{st.bnumber}</td>
+                                <td>{st.firstName}</td>
+                                <td>{st.lastName}</td>
+                                <td>{st.stLevel}</td>
+                                <td>{st.gpa}</td>
+                                <td>{st.email}</td>
+                                <td>{st.birthDate}</td>
+                                <td>
+                                    <Button
+                                        variant="danger"
+                                        onClick={() =>
+                                            removeStudent(st.bnumber)
+                                        }
+                                    >
+                                        Remove
+                                    </Button>
+                                </td>
+                            </tr>
+                        ))}
                 </tbody>
             </Table>
+            <Row className="justify-content-center">
+                <Col md={2}>
+                    <Button variant="success" onClick={getData}>
+                        Load Table
+                    </Button>
+                </Col>
+            </Row>
             <StudentsModal
                 show={showModal}
                 close={() => setShowModal(false)}

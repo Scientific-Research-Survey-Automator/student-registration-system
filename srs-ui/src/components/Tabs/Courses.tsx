@@ -1,15 +1,32 @@
 import { Button, Col, Container, Row, Table } from "react-bootstrap";
 import CoursesModal from "../Forms/CoursesModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CourseType } from "../../types";
+import { deleteEntity, getTable, postEntity } from "../../api";
 
 const Courses = () => {
     const [showModal, setShowModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [courses, setCourses] = useState<CourseType[]>([]);
+
+    const getData = () => {
+        setLoading(true);
+        getTable("COURSES")
+            .then((data) => setCourses(data))
+            .catch((e) => alert(e))
+            .finally(() => setLoading(false));
+    };
 
     const saveCourse = (course: CourseType) => {
-        console.log("Saving Course:", course);
-        return true;
+        setLoading(true);
+        postEntity("COURSES", course)
+            .then((data) => setCourses([...courses, data]))
+            .catch((e) => alert(e))
+            .finally(() => setLoading(false));
     };
+
+    if (loading) return <h4>Loading</h4>;
+
     return (
         <Container className="mt-4">
             <Row className="justify-content-between">
@@ -29,18 +46,28 @@ const Courses = () => {
                 <thead>
                     <tr>
                         <th>Course#</th>
+                        <th>Dept Code</th>
                         <th>Title</th>
-                        <th>Credits</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>1</td>
-                        <td>Applied Data mining</td>
-                        <td>3</td>
-                    </tr>
+                    {courses &&
+                        courses.map((cr, i) => (
+                            <tr key={i}>
+                                <td>{cr.courseNo}</td>
+                                <td>{cr.deptCode}</td>
+                                <td>{cr.title}</td>
+                            </tr>
+                        ))}
                 </tbody>
             </Table>
+            <Row className="justify-content-center">
+                <Col md={2}>
+                    <Button variant="success" onClick={getData}>
+                        Load Table
+                    </Button>
+                </Col>
+            </Row>
             <CoursesModal
                 show={showModal}
                 close={() => setShowModal(false)}

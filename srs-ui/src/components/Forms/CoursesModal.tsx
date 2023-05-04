@@ -11,7 +11,7 @@ const dummyCourse: CourseType = {
 interface CoursesModalProps {
     show: boolean;
     close: () => void;
-    postCourse: (course: CourseType) => boolean;
+    postCourse: (course: CourseType) => void;
 }
 
 const CoursesModal = ({ show, close, postCourse }: CoursesModalProps) => {
@@ -25,8 +25,8 @@ const CoursesModal = ({ show, close, postCourse }: CoursesModalProps) => {
     };
 
     const handleSave = () => {
-        const res = postCourse(course);
-        if (res) close();
+        postCourse(course);
+        close();
     };
 
     return (
