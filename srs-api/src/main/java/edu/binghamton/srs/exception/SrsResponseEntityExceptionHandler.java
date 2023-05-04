@@ -20,6 +20,6 @@ public class SrsResponseEntityExceptionHandler extends ResponseEntityExceptionHa
         //creating exception response structure
         ExceptionResponse exceptionResponse= new ExceptionResponse(new Date(), ex.getSQLException().getMessage(), request.getDescription(false));
         //returning exception structure and specific status
-        return new ResponseEntity(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
 }

@@ -4,15 +4,15 @@ import { Button, Col, Form, Modal, Row } from "react-bootstrap";
 
 const dummyPreReq: PreReqType = {
     deptCode: "IS",
-    "course#": 501,
-    prDeptCode: "IS",
-    "prCourse#": 502,
+    courseNo: 501,
+    preDeptCode: "IS",
+    preCourseNo: 502,
 };
 
 interface PreRequisiteModalProps {
     show: boolean;
     close: () => void;
-    postPreReq: (preReq: PreReqType) => boolean;
+    postPreReq: (preReq: PreReqType) => void;
 }
 
 const PreRequisiteModal = ({
@@ -30,8 +30,8 @@ const PreRequisiteModal = ({
     };
 
     const handleSave = () => {
-        const res = postPreReq(preReq);
-        if (res) close();
+        postPreReq(preReq);
+        close();
     };
 
     return (
@@ -63,8 +63,8 @@ const PreRequisiteModal = ({
                         <Col sm="10">
                             <Form.Control
                                 type="number"
-                                value={preReq["course#"]}
-                                name="course#"
+                                value={preReq.courseNo}
+                                name="courseNo"
                                 onChange={handleChange}
                             />
                         </Col>
@@ -76,8 +76,8 @@ const PreRequisiteModal = ({
                         <Col sm="10">
                             <Form.Control
                                 type="text"
-                                value={preReq.prDeptCode}
-                                name="prDeptCode"
+                                value={preReq.preDeptCode}
+                                name="preDeptCode"
                                 onChange={handleChange}
                             />
                         </Col>
@@ -89,8 +89,8 @@ const PreRequisiteModal = ({
                         <Col sm="10">
                             <Form.Control
                                 type="number"
-                                value={preReq["prCourse#"]}
-                                name="prCourse#"
+                                value={preReq.preCourseNo}
+                                name="preCourseNo"
                                 onChange={handleChange}
                             />
                         </Col>
