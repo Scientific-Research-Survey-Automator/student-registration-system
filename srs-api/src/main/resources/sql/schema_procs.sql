@@ -161,7 +161,8 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
         CLASS_LIMIT   NUMBER;
         IN_CLASS      NUMBER;
         CURRENT_COUNT NUMBER;
-        PRE_NOT_MET   NUMBER;
+        PRE_REQ_COUNT NUMBER;
+        PRE_REQ_MET   NUMBER;
     BEGIN
         SELECT COUNT(*)
         INTO
@@ -169,7 +170,7 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
         FROM STUDENTS s
         WHERE s."B#" = ENROLL_GRAD.B#;
         IF STUDENT_COUNT = 0 THEN
-            raise_application_error(-20003, 'The student with B#:' || ENROLL_GRAD.B# || ' is invalid.');
+            raise_application_error(-20003, 'The student with B#: ' || ENROLL_GRAD.B# || ' is invalid.');
         END IF;
 
         SELECT COUNT(*)
@@ -180,7 +181,7 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
           AND (s.ST_LEVEL = 'master'
             OR s.ST_LEVEL = 'PhD');
         IF GRAD_COUNT = 0 THEN
-            raise_application_error(-20004, 'The Student With BNUMBER: ' || ENROLL_GRAD.B# || ' is not a graduate student.');
+            raise_application_error(-20004, 'The student with B#: ' || ENROLL_GRAD.B# || ' is not a graduate student.');
         END IF;
 
         SELECT count(*)
@@ -193,11 +194,9 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
 
         SELECT COUNT(*)
         INTO CURRENT_SEM
-        FROM CLASSES c,
-             CUR_SEM cs
-        WHERE c.CLASSID = ENROLL_GRAD.CLASSID
-          AND cs."YEAR" = c."YEAR"
-          AND c.SEMESTER = cs.SEMESTER;
+        FROM CLASSES c
+                 INNER JOIN CUR_SEM cs on c.YEAR = cs.YEAR and c.SEMESTER = cs.SEMESTER
+        WHERE c.CLASSID = ENROLL_GRAD.CLASSID;
 
         IF CURRENT_SEM = 0 THEN
             raise_application_error(-20005, 'Cannot enroll into a class:' || ENROLL_GRAD.CLASSID || ' from a previous semester.');
@@ -232,30 +231,36 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
           AND ge.CLASSID = c.CLASSID
           AND c."YEAR" = cs."YEAR"
           AND c.SEMESTER = cs.SEMESTER;
-        IF CURRENT_COUNT = 5 THEN
+        IF CURRENT_COUNT > 4 THEN
             raise_application_error(-20008, 'Student with B#:' || ENROLL_GRAD.B# || ' cannot be enrolled in the class:' || ENROLL_GRAD.CLASSID ||
                                             '.Cannot be enrolled in more than five classes in the same semester.');
         END IF;
 
         SELECT COUNT(*)
-        INTO PRE_NOT_MET
-        FROM CLASSES c,
-             PREREQUISITES p
-        WHERE c.CLASSID = ENROLL_GRAD.CLASSID
-          AND c."COURSE#" = p."COURSE#"
-          AND c."COURSE#" NOT IN (SELECT c."COURSE#"
-                                  FROM G_ENROLLMENTS ge,
-                                       CLASSES c,
-                                       SCORE_GRADE sg
-                                  WHERE ge."G_B#" = ENROLL_GRAD.B#
-                                    AND ge.CLASSID = c.CLASSID
-                                    AND ge.SCORE = sg.SCORE
-                                    AND sg.LGRADE IN ('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'));
+        INTO PRE_REQ_COUNT
+        FROM CLASSES
+        INNER JOIN PREREQUISITES P on CLASSES.DEPT_CODE = P.DEPT_CODE and CLASSES.COURSE# = P.COURSE#
+        WHERE CLASSES.CLASSID = ENROLL_GRAD.CLASSID;
 
-        IF PRE_NOT_MET != 0 THEN
-            raise_application_error(-20009, 'Student with B#:' || ENROLL_GRAD.B# || ' cannot be enrolled in the class:' || ENROLL_GRAD.CLASSID ||
-                                            '. Prerequisite not satisfied.');
+        IF PRE_REQ_COUNT > 0 THEN
+            SELECT COUNT(*)
+            INTO PRE_REQ_MET
+            FROM CLASSES
+            INNER JOIN PREREQUISITES P on CLASSES.DEPT_CODE = P.DEPT_CODE and CLASSES.COURSE# = P.COURSE#
+            WHERE CLASSES.CLASSID = ENROLL_GRAD.CLASSID AND CONCAT(P.PRE_DEPT_CODE, P.PRE_COURSE#) IN (
+                SELECT CONCAT(C2.DEPT_CODE, C2.COURSE#) FROM G_ENROLLMENTS GE
+                                                                 LEFT JOIN SCORE_GRADE SG on SG.SCORE = GE.SCORE
+                                                                 JOIN CLASSES C2 on C2.CLASSID = GE.CLASSID
+                WHERE sg.LGRADE IN ('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C') AND G_B# = ENROLL_GRAD.B#
+            );
+
+            IF PRE_REQ_MET = 0 THEN
+                raise_application_error(-20009, 'Student with B#:' || ENROLL_GRAD.B# || ' cannot be enrolled in the class:' || ENROLL_GRAD.CLASSID ||
+                                                '. Prerequisite not satisfied.');
+            END IF;
+
         END IF;
+
         INSERT INTO G_ENROLLMENTS VALUES (ENROLL_GRAD.B#, ENROLL_GRAD.CLASSID, NULL);
 
     END ENROLL_GRAD;
@@ -319,27 +324,23 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
             raise_application_error(-20010, 'The student with B#:' || DROP_GRAD.B# || ' is not in the class:' || DROP_GRAD.CLASSID || '.');
         END IF;
 
-        SELECT count(*)
+        SELECT COUNT(*)
         INTO CURRENT_COUNT
-        FROM CLASSES c,
-             CUR_SEM cs
-        WHERE c."YEAR" = cs."YEAR"
-          AND c.SEMESTER = cs.SEMESTER;
+        FROM CLASSES c
+                 INNER JOIN CUR_SEM cs on c.YEAR = cs.YEAR and c.SEMESTER = cs.SEMESTER
+        WHERE c.CLASSID = DROP_GRAD.CLASSID;
         IF CURRENT_COUNT = 0 THEN
             raise_application_error(-20011, 'Only enrollment in the current semester can be dropped.');
         END IF;
 
         SELECT count(*)
         INTO LAST_COUNT
-        FROM G_ENROLLMENTS ge,
-             CLASSES c,
-             CUR_SEM cs
-        WHERE ge."G_B#" = DROP_GRAD.B#
-          AND ge.CLASSID = c.CLASSID
-          AND c."YEAR" = cs."YEAR"
-          AND c.SEMESTER = cs.SEMESTER;
+        FROM G_ENROLLMENTS ge
+                 INNER JOIN CLASSES C on ge.CLASSID = C.CLASSID
+                 INNER JOIN CUR_SEM CS on C.YEAR = CS.YEAR and C.SEMESTER = CS.SEMESTER
+        WHERE ge."G_B#" = DROP_GRAD.B#;
         IF LAST_COUNT = 1 THEN
-            raise_application_error(-20012, 'Student with B#:' || DROP_GRAD.B# || ' cannot be drpped from class:' || DROP_GRAD.CLASSID ||
+            raise_application_error(-20012, 'Student with B#:' || DROP_GRAD.B# || ' cannot be dropped from class:' || DROP_GRAD.CLASSID ||
                                             '.This is the only class for this student in current semester');
         END IF;
 

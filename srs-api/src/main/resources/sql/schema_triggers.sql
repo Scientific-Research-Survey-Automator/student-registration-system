@@ -25,12 +25,36 @@ END;^
 --     question 7 student delete trigger
 
 CREATE OR REPLACE TRIGGER student_delete_trigger
-    AFTER DELETE
+    BEFORE DELETE
     ON STUDENTS
     FOR EACH ROW
+DECLARE
+    CURRENT_COUNT NUMBER;
+    LAST_COUNT NUMBER;
 BEGIN
-    DELETE FROM G_ENROLLMENTS
-    WHERE "G_B#" = :OLD."B#";
+    FOR enrollment in (SELECT * FROM G_ENROLLMENTS WHERE "G_B#" = :OLD."B#")
+    LOOP
+        SELECT COUNT(*)
+        INTO CURRENT_COUNT
+        FROM CLASSES c
+                 INNER JOIN CUR_SEM cs on c.YEAR = cs.YEAR and c.SEMESTER = cs.SEMESTER
+        WHERE c.CLASSID = enrollment.CLASSID;
+        IF CURRENT_COUNT = 0 THEN
+            raise_application_error(-20011, 'Only enrollment in the current semester can be dropped.');
+        END IF;
+
+        SELECT count(*)
+        INTO LAST_COUNT
+        FROM G_ENROLLMENTS ge
+                 INNER JOIN CLASSES C on ge.CLASSID = C.CLASSID
+                 INNER JOIN CUR_SEM CS on C.YEAR = CS.YEAR and C.SEMESTER = CS.SEMESTER
+        WHERE ge."G_B#" = :OLD."B#";
+        IF LAST_COUNT = 1 THEN
+            raise_application_error(-20012, 'Student with B#:' || :OLD."B#" || ' cannot be dropped from class:' || enrollment.CLASSID ||
+                                            '.This is the only class for this student in current semester');
+        END IF;
+
+        end loop;
 END;^
 
 

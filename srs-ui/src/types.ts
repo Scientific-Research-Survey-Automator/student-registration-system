@@ -28,6 +28,8 @@ export type CourseCredit = {
 
 export type Class = {
     classId: string;
+    deptCode: string;
+    courseNo: number;
     section: number;
     year: string;
     semester: string;
