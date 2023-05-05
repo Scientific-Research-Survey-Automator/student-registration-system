@@ -31,9 +31,6 @@ const CourseCredits = () => {
                 <Col md={10}>
                     <h2>CourseCredits</h2>
                 </Col>
-                <Col>
-                    <Button variant="outline-primary">Add</Button>
-                </Col>
             </Row>
             <Table striped bordered hover>
                 <thead>

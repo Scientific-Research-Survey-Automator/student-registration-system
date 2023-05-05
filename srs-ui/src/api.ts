@@ -77,8 +77,11 @@ export const deEnroll = async (bnum: string, clId: string) => {
     console.log("deEnrolling ", bnum, clId);
 
     const url = API_URL + "/enrollment/" + bnum + "/" + clId;
-
-    const resp = await axios.delete(url);
-    console.log(resp.data);
-    return resp.data;
+    try {
+        const resp = await axios.delete(url);
+        console.log(resp.data);
+        return resp.data;
+    } catch (e: any) {
+        throw new Error(e.response.data.message);
+    }
 };
