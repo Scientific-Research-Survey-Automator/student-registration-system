@@ -28,6 +28,8 @@ const Classes = () => {
                 <thead>
                     <tr>
                         <th>classId</th>
+                        <th>deptCode</th>
+                        <th>course#</th>
                         <th>room</th>
                         <th>section</th>
                         <th>semester</th>
@@ -40,6 +42,8 @@ const Classes = () => {
                     {classes.map((cl, i) => (
                         <tr key={i}>
                             <td>{cl.classId}</td>
+                            <td>{cl.deptCode}</td>
+                            <td>{cl.courseNo}</td>
                             <td>{cl.room}</td>
                             <td>{cl.section}</td>
                             <td>{cl.semester}</td>

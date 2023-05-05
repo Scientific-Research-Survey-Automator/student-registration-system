@@ -68,9 +68,13 @@ export const deleteEntity = async (table: string, id: any) => {
     const entityPath = getPath(table);
     const url = API_URL + entityPath + id;
 
-    const resp = await axios.delete(url);
-    console.log(resp.data);
-    return resp.data;
+    try {
+        const resp = await axios.delete(url);
+        console.log(resp.data);
+        return resp.data;
+    } catch (e: any) {
+        throw new Error(e.response.data.message);
+    }
 };
 
 export const deEnroll = async (bnum: string, clId: string) => {
