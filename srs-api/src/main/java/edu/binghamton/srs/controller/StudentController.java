@@ -22,6 +22,7 @@ public class StudentController {
 
     private final StudentService studentService;
 
+//    Fetch all students
     @GetMapping
     public ResponseEntity<Collection<Student>> getAllStudents() {
         Collection<Student> students = studentService.findAllStudents();
@@ -29,11 +30,13 @@ public class StudentController {
         return ResponseEntity.status(status).body(students);
     }
 
+//    Fetch a particular student
     @GetMapping("/{bNumber}")
     public ResponseEntity<Student> getStudent(@PathVariable String bNumber) {
         return ResponseEntity.of(studentService.findStudentByBNumber(bNumber));
     }
 
+//    Create a student record
     @PostMapping
     public ResponseEntity<Student> saveStudent(@RequestBody Student student) {
         studentService.saveStudent(student);
@@ -46,6 +49,7 @@ public class StudentController {
         return ResponseEntity.created(studentUri).body(student);
     }
 
+//    Update student details
     @PutMapping("/{bNumber}")
     public ResponseEntity<Boolean> updateStudentDetails(@PathVariable String bNumber, @RequestBody StudentUpdateRequest updateRequest) {
         boolean status = studentService.updateStudent(bNumber, updateRequest);
@@ -54,6 +58,7 @@ public class StudentController {
     }
 
 //    Using stored proc defined under PL/SQL requirements 7 for SRS
+//    Delete a student from the registration system
     @DeleteMapping("/{bNumber}")
     public ResponseEntity<Boolean> deleteStudent(@PathVariable String bNumber) {
         studentService.deleteStudent(bNumber);

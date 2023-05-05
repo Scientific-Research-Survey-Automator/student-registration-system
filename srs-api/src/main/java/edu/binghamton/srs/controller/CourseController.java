@@ -22,6 +22,7 @@ public class CourseController {
 
     private final CourseService courseService;
 
+//    Fetch all courses
     @GetMapping
     public ResponseEntity<Collection<Course>> getAllCourses() {
         Collection<Course> courses = courseService.findAllCourses();
@@ -29,12 +30,13 @@ public class CourseController {
         return ResponseEntity.status(status).body(courses);
     }
 
+//    Fetch a particular course
     @GetMapping("/{deptCode}/{courseNo}")
     public ResponseEntity<Course> getCourse(@PathVariable String deptCode, @PathVariable int courseNo) {
         return ResponseEntity.of(courseService.findCourse(deptCode, courseNo));
     }
 
-
+//    Create a course
     @PostMapping("/{deptCode}/{courseNo}")
     public ResponseEntity<Course> saveCourse(@PathVariable String deptCode, @PathVariable int courseNo, @RequestBody String title) {
         Course course = Course.builder()
@@ -52,21 +54,24 @@ public class CourseController {
         return ResponseEntity.created(courseUri).body(course);
     }
 
+//    Fetch all prerequisite courses
     @GetMapping("/prerequisites")
-    public Object getPrerequisiteCourses() {
+    public ResponseEntity<Collection<PrerequisiteCourse>> getPrerequisiteCourses() {
         Collection<PrerequisiteCourse> prerequisiteCourses = courseService.fetchAllPrerequisiteCourses();
         HttpStatus status = CollectionUtils.isEmpty(prerequisiteCourses) ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity.status(status).body(prerequisiteCourses);
     }
 
 //    Using stored proc defined under PL/SQL requirements 4 for SRS
+//    Fetch direct & indirect prerequisite courses.
     @GetMapping("/prerequisites/{deptCode}/{courseNo}")
-    public Object getPrerequisiteCourses(@PathVariable String deptCode, @PathVariable int courseNo) {
+    public ResponseEntity<Collection<String>> getPrerequisiteCourses(@PathVariable String deptCode, @PathVariable int courseNo) {
         Collection<String> prerequisiteCourses = courseService.fetchPrerequisiteCourses(deptCode, courseNo);
         HttpStatus status = CollectionUtils.isEmpty(prerequisiteCourses) ? HttpStatus.NO_CONTENT : HttpStatus.OK;
         return ResponseEntity.status(status).body(prerequisiteCourses);
     }
 
+//    Add a prerequisite course
     @PostMapping("/prerequisites")
     public ResponseEntity<PrerequisiteCourse> createPrerequisiteCourse(@RequestBody PrerequisiteCourse prerequisiteCourse) {
         courseService.createPrerequisiteCourse(prerequisiteCourse);
