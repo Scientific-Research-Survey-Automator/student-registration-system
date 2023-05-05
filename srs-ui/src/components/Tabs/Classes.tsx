@@ -21,10 +21,7 @@ const Classes = () => {
         <Container className="mt-4">
             <Row className="justify-content-between">
                 <Col md={10}>
-                    <h2>CourseCredits</h2>
-                </Col>
-                <Col>
-                    <Button variant="outline-primary">Add</Button>
+                    <h2>Classes</h2>
                 </Col>
             </Row>
             <Table striped bordered hover>

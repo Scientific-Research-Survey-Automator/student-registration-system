@@ -2,9 +2,11 @@ import {
     Button,
     Col,
     Container,
+    Dropdown,
     Form,
     InputGroup,
     Row,
+    SplitButton,
     Table,
 } from "react-bootstrap";
 import { useState } from "react";
@@ -19,6 +21,7 @@ import {
 
 const Enrollments = () => {
     const [loading, setLoading] = useState(false);
+    const [action, setAction] = useState("Add");
     const [studentClassId, setStudentClassId] = useState("");
     const [classId, setClassId] = useState("");
     const [bnumber, setBnumber] = useState("");
@@ -39,6 +42,16 @@ const Enrollments = () => {
             .catch((e) => alert(e))
             .finally(() => setLoading(false));
     };
+
+    const doAction = () => {
+        if (bnumber === "" || classId === "") {
+            alert("Invalid Input");
+            return;
+        }
+        if (action === "Add") enrollStudent();
+        if (action === "Delete") removeEnrollment(bnumber, classId);
+    };
+
     const enrollStudent = () => {
         setLoading(true);
         postEnrollment(bnumber, classId)
@@ -84,9 +97,24 @@ const Enrollments = () => {
                             value={bnumber}
                             onChange={(e) => setBnumber(e.target.value)}
                         />
-                        <Button variant="secondary" onClick={enrollStudent}>
-                            ADD
-                        </Button>
+                        <SplitButton
+                            variant="secondary"
+                            title={action}
+                            onClick={doAction}
+                        >
+                            <Dropdown.Item
+                                href="#"
+                                onClick={() => setAction("Add")}
+                            >
+                                ADD
+                            </Dropdown.Item>
+                            <Dropdown.Item
+                                href="#"
+                                onClick={() => setAction("Delete")}
+                            >
+                                DELETE
+                            </Dropdown.Item>
+                        </SplitButton>
                     </InputGroup>
                 </Col>
             </Row>
@@ -104,7 +132,7 @@ const Enrollments = () => {
                         <tr key={i}>
                             <td>{en.bnumber}</td>
                             <td>{en.classId}</td>
-                            <td>{en.score}</td>
+                            <td>{en.score || "null"}</td>
                             <td>
                                 <Button
                                     variant="danger"
