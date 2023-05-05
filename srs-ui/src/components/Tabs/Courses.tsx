@@ -17,14 +17,6 @@ const Courses = () => {
             .finally(() => setLoading(false));
     };
 
-    const saveCourse = (course: CourseType) => {
-        setLoading(true);
-        postEntity("COURSES", course)
-            .then((data) => setCourses([...courses, data]))
-            .catch((e) => alert(e))
-            .finally(() => setLoading(false));
-    };
-
     if (loading) return <h4>Loading</h4>;
 
     return (
@@ -32,14 +24,6 @@ const Courses = () => {
             <Row className="justify-content-between">
                 <Col md={10}>
                     <h2>Courses</h2>
-                </Col>
-                <Col>
-                    <Button
-                        variant="outline-primary"
-                        onClick={() => setShowModal(true)}
-                    >
-                        Add
-                    </Button>
                 </Col>
             </Row>
             <Table striped bordered hover>
@@ -68,11 +52,6 @@ const Courses = () => {
                     </Button>
                 </Col>
             </Row>
-            <CoursesModal
-                show={showModal}
-                close={() => setShowModal(false)}
-                postCourse={saveCourse}
-            />
         </Container>
     );
 };
