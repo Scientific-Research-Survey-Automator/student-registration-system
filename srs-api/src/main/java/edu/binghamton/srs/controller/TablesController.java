@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collection;
 
+/**
+ * Fetches information across all tables that are part of student registration system.
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/tables")
