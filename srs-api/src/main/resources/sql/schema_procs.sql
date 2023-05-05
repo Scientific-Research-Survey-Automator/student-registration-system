@@ -324,8 +324,7 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
         FROM CLASSES c,
              CUR_SEM cs
         WHERE c."YEAR" = cs."YEAR"
-          AND c.SEMESTER = cs.SEMESTER
-          AND c.CLASSID = DROP_GRAD.CLASSID;
+          AND c.SEMESTER = cs.SEMESTER;
         IF CURRENT_COUNT = 0 THEN
             raise_application_error(-20011, 'Only enrollment in the current semester can be dropped.');
         END IF;
