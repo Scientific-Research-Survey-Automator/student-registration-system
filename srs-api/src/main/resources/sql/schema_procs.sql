@@ -23,7 +23,7 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
 
     /*
     2.  (4 points) Write procedures in your package to display the tuples in each of the eight tables for thAS
-        project. As an example, you can write a procedure, say show_students, to display all students in tAS
+        project. As an example, you can write a procedure, say show_students, to display all students in the
         students table.
     **/
 
@@ -254,9 +254,11 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
             raise_application_error(-20009, 'Student with B#:' || BID || ' cannot be enrolled in the class:' || CID ||
                                             '. Prerequisite not satisfied.');
         END IF;
-        INSERT INTO G_ENROLLMENTS VALUES (BID, CID, NULL);
+        UPDATE G_ENROLLMENTS ge SET ge.TO_ENROLL = 1 WHERE ge."G_B#" = BID AND ge.CLASSID = CID;
 
     END ENROLL_GRAD;
+
+ALTER TABLE G_ENROLLMENTS ADD (TO_ENROLL NUMBER(1) DEFAULT 0);
 
 
 /*
@@ -344,8 +346,11 @@ CREATE OR REPLACE PACKAGE BODY SRS AS
         END IF;
 
         DELETE FROM G_ENROLLMENTS ge WHERE ge."G_B#" = BID AND ge.CLASSID = CID;
+        UPDATE G_ENROLLMENTS ge SET ge.TO_DELETE = 1 WHERE ge."G_B#" = BID AND ge.CLASSID = CID;
 
     END DROP_GRAD;
+
+ALTER TABLE G_ENROLLMENTS ADD (TO_DELETE NUMBER(1) DEFAULT 0);
 
 
 /*
@@ -399,4 +404,10 @@ BEGIN
         credits_val := 3;
     END IF;
     INSERT INTO COURSE_CREDIT VALUES (course_no, credits_val);
+END;^
+
+
+--Display all students in the students table.
+BEGIN
+    SRS.SHOW_STUDENTS;
 END;^

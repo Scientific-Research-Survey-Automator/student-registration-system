@@ -25,11 +25,12 @@ END;^
 --     question 7 student delete trigger
 
 CREATE OR REPLACE TRIGGER student_delete_trigger
-    BEFORE DELETE
+    AFTER DELETE
     ON STUDENTS
     FOR EACH ROW
 BEGIN
-    NULL;
+    DELETE FROM G_ENROLLMENTS
+    WHERE "G_B#" = :OLD."B#";
 END;^
 
 
