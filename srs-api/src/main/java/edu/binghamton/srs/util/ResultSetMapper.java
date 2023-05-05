@@ -26,7 +26,7 @@ public class ResultSetMapper {
                 .firstName(resultSet.getString(Constants.DB_COL_FIRST_NAME))
                 .lastName(resultSet.getString(Constants.DB_COL_LAST_NAME))
                 .stLevel(resultSet.getString(Constants.DB_COL_ST_LEVEL))
-                .gpa(resultSet.getDouble(Constants.DB_COL_GPA))
+                .gpa(getNullableDouble(resultSet, Constants.DB_COL_GPA))
                 .email(resultSet.getString(Constants.DB_COL_EMAIL))
                 .birthDate(resultSet.getDate(Constants.DB_COL_BDATE).toLocalDate())
                 .build();
@@ -83,7 +83,7 @@ public class ResultSetMapper {
         Enrollment enrollment = Enrollment.builder()
                 .bNumber(resultSet.getString(Constants.DB_COL_G_B_NUMBER))
                 .classId(resultSet.getString(Constants.DB_COL_CLASSID))
-                .score(resultSet.getDouble(Constants.DB_COL_SCORE))
+                .score(getNullableDouble(resultSet, Constants.DB_COL_SCORE))
                 .build();
         LOGGER.trace("Mapped row to enrollment object: {}.", enrollment);
         return enrollment;
@@ -134,5 +134,10 @@ public class ResultSetMapper {
         ScoreGrade scoreGrade = new ScoreGrade(resultSet.getDouble(DB_COL_SCORE), resultSet.getString(DB_COL_GRADE));
         LOGGER.trace("Mapped row to scoreGrade object: {}.", scoreGrade);
         return scoreGrade;
+    }
+
+    private static Double getNullableDouble(ResultSet resultSet, String columnName) throws SQLException {
+        String columnValue = resultSet.getString(columnName);
+        return columnValue == null ? null : Double.parseDouble(columnValue);
     }
 }
